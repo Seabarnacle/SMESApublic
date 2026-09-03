@@ -1,0 +1,67 @@
+   => Loading Basis Set <=
+
+    Name: AUG-CC-PVDZ
+    Role: ORBITAL
+    Keyword: BASIS
+    atoms 1   entry O          line   250 file /home/psilocaluser/gits/hrw-patch/objdir-intel4/stage/usr/local/psi4/share/psi4/basis/aug-cc-pvdz.gbs 
+    atoms 2-3 entry H          line    36 file /home/psilocaluser/gits/hrw-patch/objdir-intel4/stage/usr/local/psi4/share/psi4/basis/aug-cc-pvdz.gbs 
+
+
+Number of occupied orbitals: 5
+Number of basis functions:   41
+
+   => Loading Basis Set <=
+
+    Name: (AUG-CC-PVDZ AUX)
+    Role: JKFIT
+    Keyword: DF_BASIS_SCF
+    atoms 1   entry O          line   270 file /home/psilocaluser/gits/hrw-patch/objdir-intel4/stage/usr/local/psi4/share/psi4/basis/aug-cc-pvdz-jkfit.gbs 
+    atoms 2-3 entry H          line    70 file /home/psilocaluser/gits/hrw-patch/objdir-intel4/stage/usr/local/psi4/share/psi4/basis/aug-cc-pvdz-jkfit.gbs 
+
+
+  Warning: JK type 'DF' found in simple constructor, defaulting to DiskDFJK.
+           Please use the build_JK(primary, auxiliary, options, do_wK, memory)
+           constructor as DiskDFJK non-optimal performance.
+
+  ==> DiskDFJK: Density-Fitted J/K Matrices <==
+
+    J tasked:                  Yes
+    K tasked:                  Yes
+    wK tasked:                  No
+    OpenMP threads:              1
+    Integrals threads:           1
+    Memory (MB):               953
+    Algorithm:                Core
+    Integral Cache:           NONE
+    Schwarz Cutoff:          1E-12
+    Fitting Condition:       1E-12
+
+   => Auxiliary Basis Set <=
+
+  Basis Set: (AUG-CC-PVDZ AUX)
+    Blend: AUG-CC-PVDZ-JKFIT
+    Number of shells: 52
+    Number of basis function: 150
+    Number of Cartesian functions: 171
+    Spherical Harmonics?: true
+    Max angular momentum: 3
+
+
+Total time taken for setup: 0.134 seconds
+
+Start SCF iterations:
+
+SCF Iteration   1: Energy = -68.6092608896004634   dE = -6.86093E+01   dRMS = 7.51473E-02
+SCF Iteration   2: Energy = -65.9921126158615721   dE =  2.61715E+00   dRMS = 6.29506E-02
+SCF Iteration   3: Energy = -75.1190897260815831   dE = -9.12698E+00   dRMS = 3.57415E-02
+SCF Iteration   4: Energy = -75.7449986192636828   dE = -6.25909E-01   dRMS = 1.88596E-02
+SCF Iteration   5: Energy = -75.9928126939466608   dE = -2.47814E-01   dRMS = 3.23855E-03
+SCF Iteration   6: Energy = -76.0030710136050942   dE = -1.02583E-02   dRMS = 5.58643E-04
+SCF Iteration   7: Energy = -76.0033136343329687   dE = -2.42621E-04   dRMS = 1.02191E-04
+SCF Iteration   8: Energy = -76.0033365550265927   dE = -2.29207E-05   dRMS = 2.67040E-05
+SCF Iteration   9: Energy = -76.0033387536686007   dE = -2.19864E-06   dRMS = 8.91032E-06
+SCF Iteration  10: Energy = -76.0033389840168354   dE = -2.30348E-07   dRMS = 1.43725E-06
+Total time for SCF iterations: 0.022 seconds 
+
+Final SCF energy: -76.00333898 hartree
+	SCF Energy........................................................PASSED

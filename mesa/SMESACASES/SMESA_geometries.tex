@@ -1,0 +1,493 @@
+\documentclass[10pt]{article}
+\usepackage[letterpaper,landscape,margin=0.55in]{geometry}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage[table]{xcolor}
+\definecolor{smesablue}{HTML}{17365D}
+\definecolor{smesalight}{HTML}{F1F5FA}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\begin{document}
+\begin{center}
+{\LARGE\bfseries\color{smesablue} SMESA calculation geometries}\par\vspace{0.35in}
+{\large Supporting information for \emph{Secondary Minimal Error Sampling Algorithms for Accelerating Self-Consistent Field Calculations}}\par\vspace{0.2in}
+Paul Calistrate-Petre and Yan Alexander Wang\par\vspace{0.5in}
+\begin{minipage}{0.78\textwidth}\large
+This document records the Cartesian geometry and starting calculation settings for every case input in \texttt{mesa/SMESACASES}. Coordinates are in angstrom. Inputs supplied as Z-matrices were converted to the matching Cartesian representation by Psi4. Values marked ``default'' are supplied by \texttt{metarunner.py} when the case file does not override them.
+\end{minipage}
+\end{center}
+\clearpage
+{\LARGE\bfseries\color{smesablue} C4H4 square}\hfill Geometry 1 of 14\par
+\vspace{0.08in}\color{smesablue}\hrule\color{black}\vspace{0.15in}
+\begin{minipage}[t]{0.48\textwidth}
+\centering\includegraphics[width=\linewidth,height=5.7in,keepaspectratio]{\detokenize{geometry_figures/C4H4square.png}}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}
+\rowcolors{1}{smesalight}{white}
+\begin{tabular}{>{\bfseries\color{smesablue}}p{1.65in}p{3.15in}}
+Input & C4H4square/C4H4square.txt \\
+Atoms & C4H4 (8 atoms) \\
+Charge / multiplicity & 0 / 1 \\
+Method / reference & HF / RHF \\
+Basis & LANL2DZ \\
+Initial guess & CORE (default) \\
+SCF type & PK (default) \\
+\end{tabular}
+\vspace{0.18in}
+{\large\bfseries\color{smesablue} Cartesian geometry (angstrom)}\par\vspace{0.06in}
+\rowcolors{2}{smesalight}{white}
+\begin{tabular}{r c r r r}
+\toprule
+\# & Atom & $x$ & $y$ & $z$ \\
+\midrule
+1 & C &  1.018234 &  0.000000 &  0.000000 \\
+2 & C &  0.000000 &  1.018234 &  0.000000 \\
+3 & C & -1.018234 &  0.000000 &  0.000000 \\
+4 & C &  0.000000 & -1.018234 &  0.000000 \\
+5 & H &  2.097279 &  0.000000 &  0.000000 \\
+6 & H &  0.000000 &  2.097279 &  0.000000 \\
+7 & H & -2.097279 &  0.000000 &  0.000000 \\
+8 & H &  0.000000 & -2.097279 &  0.000000 \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\vfill
+\footnotesize Atom numbers in the rendering correspond to the coordinate table.
+\clearpage
+{\LARGE\bfseries\color{smesablue} Co2}\hfill Geometry 2 of 14\par
+\vspace{0.08in}\color{smesablue}\hrule\color{black}\vspace{0.15in}
+\begin{minipage}[t]{0.48\textwidth}
+\centering\includegraphics[width=\linewidth,height=5.7in,keepaspectratio]{\detokenize{geometry_figures/Co2.png}}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}
+\rowcolors{1}{smesalight}{white}
+\begin{tabular}{>{\bfseries\color{smesablue}}p{1.65in}p{3.15in}}
+Input & Co2/Co2.txt \\
+Atoms & Co2 (2 atoms) \\
+Charge / multiplicity & 0 / 1 \\
+Method / reference & HF / UHF \\
+Basis & LANL2DZ \\
+Initial guess & CORE (default) \\
+SCF type & PK (default) \\
+\end{tabular}
+\vspace{0.18in}
+{\large\bfseries\color{smesablue} Cartesian geometry (angstrom)}\par\vspace{0.06in}
+\rowcolors{2}{smesalight}{white}
+\begin{tabular}{r c r r r}
+\toprule
+\# & Atom & $x$ & $y$ & $z$ \\
+\midrule
+1 & Co &  0.000000 &  0.000000 & -1.100000 \\
+2 & Co &  0.000000 &  0.000000 &  1.100000 \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\vfill
+\footnotesize Atom numbers in the rendering correspond to the coordinate table.
+\clearpage
+{\LARGE\bfseries\color{smesablue} Cr2}\hfill Geometry 3 of 14\par
+\vspace{0.08in}\color{smesablue}\hrule\color{black}\vspace{0.15in}
+\begin{minipage}[t]{0.48\textwidth}
+\centering\includegraphics[width=\linewidth,height=5.7in,keepaspectratio]{\detokenize{geometry_figures/Cr2.png}}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}
+\rowcolors{1}{smesalight}{white}
+\begin{tabular}{>{\bfseries\color{smesablue}}p{1.65in}p{3.15in}}
+Input & Cr2/Cr2.txt \\
+Atoms & Cr2 (2 atoms) \\
+Charge / multiplicity & 0 / 1 \\
+Method / reference & HF / RHF \\
+Basis & LANL2DZ \\
+Initial guess & CORE (default) \\
+SCF type & PK (default) \\
+\end{tabular}
+\vspace{0.18in}
+{\large\bfseries\color{smesablue} Cartesian geometry (angstrom)}\par\vspace{0.06in}
+\rowcolors{2}{smesalight}{white}
+\begin{tabular}{r c r r r}
+\toprule
+\# & Atom & $x$ & $y$ & $z$ \\
+\midrule
+1 & Cr &  0.000000 &  0.000000 & -1.680000 \\
+2 & Cr &  0.000000 &  0.000000 &  1.680000 \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\vfill
+\footnotesize Atom numbers in the rendering correspond to the coordinate table.
+\clearpage
+{\LARGE\bfseries\color{smesablue} Cr3 linear}\hfill Geometry 4 of 14\par
+\vspace{0.08in}\color{smesablue}\hrule\color{black}\vspace{0.15in}
+\begin{minipage}[t]{0.48\textwidth}
+\centering\includegraphics[width=\linewidth,height=5.7in,keepaspectratio]{\detokenize{geometry_figures/Cr3_linear.png}}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}
+\rowcolors{1}{smesalight}{white}
+\begin{tabular}{>{\bfseries\color{smesablue}}p{1.65in}p{3.15in}}
+Input & Cr3\_linear/Cr3\_linear.txt \\
+Atoms & Cr3 (3 atoms) \\
+Charge / multiplicity & 0 / 1 \\
+Method / reference & HF / UHF \\
+Basis & LANL2DZ \\
+Initial guess & CORE (default) \\
+SCF type & PK (default) \\
+\end{tabular}
+\vspace{0.18in}
+{\large\bfseries\color{smesablue} Cartesian geometry (angstrom)}\par\vspace{0.06in}
+\rowcolors{2}{smesalight}{white}
+\begin{tabular}{r c r r r}
+\toprule
+\# & Atom & $x$ & $y$ & $z$ \\
+\midrule
+1 & Cr &  0.000000 &  0.000000 & -2.000000 \\
+2 & Cr &  0.000000 &  0.000000 &  0.000000 \\
+3 & Cr &  0.000000 &  0.000000 &  2.000000 \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\vfill
+\footnotesize Atom numbers in the rendering correspond to the coordinate table.
+\clearpage
+{\LARGE\bfseries\color{smesablue} Fe2S2}\hfill Geometry 5 of 14\par
+\vspace{0.08in}\color{smesablue}\hrule\color{black}\vspace{0.15in}
+\begin{minipage}[t]{0.48\textwidth}
+\centering\includegraphics[width=\linewidth,height=5.7in,keepaspectratio]{\detokenize{geometry_figures/Fe2S2.png}}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}
+\rowcolors{1}{smesalight}{white}
+\begin{tabular}{>{\bfseries\color{smesablue}}p{1.65in}p{3.15in}}
+Input & Fe2S2/Fe2S2.txt \\
+Atoms & Fe2S2 (4 atoms) \\
+Charge / multiplicity & 0 / 1 \\
+Method / reference & HF / RHF \\
+Basis & LANL2DZ \\
+Initial guess & CORE (default) \\
+SCF type & PK (default) \\
+\end{tabular}
+\vspace{0.18in}
+{\large\bfseries\color{smesablue} Cartesian geometry (angstrom)}\par\vspace{0.06in}
+\rowcolors{2}{smesalight}{white}
+\begin{tabular}{r c r r r}
+\toprule
+\# & Atom & $x$ & $y$ & $z$ \\
+\midrule
+1 & Fe & -0.000000 &  1.340534 &  0.000000 \\
+2 & S &  1.588225 &  0.000000 &  0.000000 \\
+3 & Fe &  0.000000 & -1.340534 &  0.000000 \\
+4 & S & -1.588225 & -0.000000 &  0.000000 \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\vfill
+\footnotesize Atom numbers in the rendering correspond to the coordinate table.
+\clearpage
+{\LARGE\bfseries\color{smesablue} Mn2 stretched}\hfill Geometry 6 of 14\par
+\vspace{0.08in}\color{smesablue}\hrule\color{black}\vspace{0.15in}
+\begin{minipage}[t]{0.48\textwidth}
+\centering\includegraphics[width=\linewidth,height=5.7in,keepaspectratio]{\detokenize{geometry_figures/Mn2_stretched.png}}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}
+\rowcolors{1}{smesalight}{white}
+\begin{tabular}{>{\bfseries\color{smesablue}}p{1.65in}p{3.15in}}
+Input & Mn2\_stretched/Mn2\_stretched.txt \\
+Atoms & Mn2 (2 atoms) \\
+Charge / multiplicity & 0 / 1 \\
+Method / reference & HF / UHF \\
+Basis & LANL2DZ \\
+Initial guess & SAD \\
+SCF type & PK (default) \\
+\end{tabular}
+\vspace{0.18in}
+{\large\bfseries\color{smesablue} Cartesian geometry (angstrom)}\par\vspace{0.06in}
+\rowcolors{2}{smesalight}{white}
+\begin{tabular}{r c r r r}
+\toprule
+\# & Atom & $x$ & $y$ & $z$ \\
+\midrule
+1 & Mn &  0.000000 &  0.000000 & -1.575000 \\
+2 & Mn &  0.000000 &  0.000000 &  1.575000 \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\vfill
+\footnotesize Atom numbers in the rendering correspond to the coordinate table.
+\clearpage
+{\LARGE\bfseries\color{smesablue} Os3CO9}\hfill Geometry 7 of 14\par
+\vspace{0.08in}\color{smesablue}\hrule\color{black}\vspace{0.15in}
+\begin{minipage}[t]{0.48\textwidth}
+\centering\includegraphics[width=\linewidth,height=5.7in,keepaspectratio]{\detokenize{geometry_figures/Os3CO9.png}}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}
+\rowcolors{1}{smesalight}{white}
+\begin{tabular}{>{\bfseries\color{smesablue}}p{1.65in}p{3.15in}}
+Input & Os3CO9/Os3CO9.txt \\
+Atoms & Os3C3O3 (9 atoms) \\
+Charge / multiplicity & 0 / 1 \\
+Method / reference & HF / RHF \\
+Basis & LANL2DZ \\
+Initial guess & CORE (default) \\
+SCF type & PK (default) \\
+\end{tabular}
+\vspace{0.18in}
+{\large\bfseries\color{smesablue} Cartesian geometry (angstrom)}\par\vspace{0.06in}
+\rowcolors{2}{smesalight}{white}
+\begin{tabular}{r c r r r}
+\toprule
+\# & Atom & $x$ & $y$ & $z$ \\
+\midrule
+1 & Os &  0.000000 &  1.550000 &  0.000000 \\
+2 & Os &  1.342590 & -0.775000 &  0.000000 \\
+3 & Os & -1.342590 & -0.775000 &  0.000000 \\
+4 & C &  0.000000 &  3.400000 &  0.000000 \\
+5 & O &  0.000000 &  4.550000 &  0.000000 \\
+6 & C &  2.947180 & -1.700000 &  0.000000 \\
+7 & O &  3.943180 & -2.275000 &  0.000000 \\
+8 & C & -2.947180 & -1.700000 &  0.000000 \\
+9 & O & -3.943180 & -2.275000 &  0.000000 \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\vfill
+\footnotesize Atom numbers in the rendering correspond to the coordinate table.
+\clearpage
+{\LARGE\bfseries\color{smesablue} Rh4LCO}\hfill Geometry 8 of 14\par
+\vspace{0.08in}\color{smesablue}\hrule\color{black}\vspace{0.15in}
+\begin{minipage}[t]{0.48\textwidth}
+\centering\includegraphics[width=\linewidth,height=5.7in,keepaspectratio]{\detokenize{geometry_figures/Rh4LCO.png}}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}
+\rowcolors{1}{smesalight}{white}
+\begin{tabular}{>{\bfseries\color{smesablue}}p{1.65in}p{3.15in}}
+Input & Rh4LCO/Rh4LCO.txt \\
+Atoms & Rh4CO (6 atoms) \\
+Charge / multiplicity & 0 / 1 \\
+Method / reference & HF / RHF (default) \\
+Basis & LANL2DZ \\
+Initial guess & CORE (default) \\
+SCF type & PK (default) \\
+\end{tabular}
+\vspace{0.18in}
+{\large\bfseries\color{smesablue} Cartesian geometry (angstrom)}\par\vspace{0.06in}
+\rowcolors{2}{smesalight}{white}
+\begin{tabular}{r c r r r}
+\toprule
+\# & Atom & $x$ & $y$ & $z$ \\
+\midrule
+1 & Rh & -0.825095 &  0.355937 & -1.246735 \\
+2 & Rh & -0.823385 &  0.358847 &  1.246145 \\
+3 & Rh &  1.373215 &  0.263967 & -0.001715 \\
+4 & Rh & -0.263835 & -1.722033 &  0.001785 \\
+5 & C &  1.881075 &  2.076177 & -0.000935 \\
+6 & O &  2.057115 &  3.224367 &  0.004055 \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\vfill
+\footnotesize Atom numbers in the rendering correspond to the coordinate table.
+\clearpage
+{\LARGE\bfseries\color{smesablue} Rh4 square}\hfill Geometry 9 of 14\par
+\vspace{0.08in}\color{smesablue}\hrule\color{black}\vspace{0.15in}
+\begin{minipage}[t]{0.48\textwidth}
+\centering\includegraphics[width=\linewidth,height=5.7in,keepaspectratio]{\detokenize{geometry_figures/Rh4_square.png}}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}
+\rowcolors{1}{smesalight}{white}
+\begin{tabular}{>{\bfseries\color{smesablue}}p{1.65in}p{3.15in}}
+Input & Rh4\_square/Rh4\_square.txt \\
+Atoms & Rh4 (4 atoms) \\
+Charge / multiplicity & 0 / 1 \\
+Method / reference & HF / RHF \\
+Basis & LANL2DZ \\
+Initial guess & CORE (default) \\
+SCF type & PK (default) \\
+\end{tabular}
+\vspace{0.18in}
+{\large\bfseries\color{smesablue} Cartesian geometry (angstrom)}\par\vspace{0.06in}
+\rowcolors{2}{smesalight}{white}
+\begin{tabular}{r c r r r}
+\toprule
+\# & Atom & $x$ & $y$ & $z$ \\
+\midrule
+1 & Rh &  1.350000 &  1.350000 &  0.000000 \\
+2 & Rh & -1.350000 &  1.350000 &  0.000000 \\
+3 & Rh & -1.350000 & -1.350000 &  0.000000 \\
+4 & Rh &  1.350000 & -1.350000 &  0.000000 \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\vfill
+\footnotesize Atom numbers in the rendering correspond to the coordinate table.
+\clearpage
+{\LARGE\bfseries\color{smesablue} UCl6}\hfill Geometry 10 of 14\par
+\vspace{0.08in}\color{smesablue}\hrule\color{black}\vspace{0.15in}
+\begin{minipage}[t]{0.48\textwidth}
+\centering\includegraphics[width=\linewidth,height=5.7in,keepaspectratio]{\detokenize{geometry_figures/UCl6.png}}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}
+\rowcolors{1}{smesalight}{white}
+\begin{tabular}{>{\bfseries\color{smesablue}}p{1.65in}p{3.15in}}
+Input & UCl6/UCl6.txt \\
+Atoms & UCl6 (7 atoms) \\
+Charge / multiplicity & 0 / 1 \\
+Method / reference & HF / RHF (default) \\
+Basis & LANL2DZ \\
+Initial guess & CORE (default) \\
+SCF type & PK (default) \\
+\end{tabular}
+\vspace{0.18in}
+{\large\bfseries\color{smesablue} Cartesian geometry (angstrom)}\par\vspace{0.06in}
+\rowcolors{2}{smesalight}{white}
+\begin{tabular}{r c r r r}
+\toprule
+\# & Atom & $x$ & $y$ & $z$ \\
+\midrule
+1 & U &  0.000000 &  0.000000 &  0.000000 \\
+2 & Cl &  0.000000 &  0.000000 &  2.390000 \\
+3 & Cl &  0.000000 &  2.390000 &  0.000000 \\
+4 & Cl & -2.390000 &  0.000000 &  0.000000 \\
+5 & Cl &  0.000000 &  0.000000 & -2.390000 \\
+6 & Cl &  2.390000 &  0.000000 &  0.000000 \\
+7 & Cl &  0.000000 & -2.390000 &  0.000000 \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\vfill
+\footnotesize Atom numbers in the rendering correspond to the coordinate table.
+\clearpage
+{\LARGE\bfseries\color{smesablue} V3 scalene}\hfill Geometry 11 of 14\par
+\vspace{0.08in}\color{smesablue}\hrule\color{black}\vspace{0.15in}
+\begin{minipage}[t]{0.48\textwidth}
+\centering\includegraphics[width=\linewidth,height=5.7in,keepaspectratio]{\detokenize{geometry_figures/V3_Scalene.png}}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}
+\rowcolors{1}{smesalight}{white}
+\begin{tabular}{>{\bfseries\color{smesablue}}p{1.65in}p{3.15in}}
+Input & V3\_Scalene/V3\_Scalene.txt \\
+Atoms & V3 (3 atoms) \\
+Charge / multiplicity & 0 / 4 \\
+Method / reference & HF / UHF \\
+Basis & LANL2DZ \\
+Initial guess & GWH \\
+SCF type & PK (default) \\
+\end{tabular}
+\vspace{0.18in}
+{\large\bfseries\color{smesablue} Cartesian geometry (angstrom)}\par\vspace{0.06in}
+\rowcolors{2}{smesalight}{white}
+\begin{tabular}{r c r r r}
+\toprule
+\# & Atom & $x$ & $y$ & $z$ \\
+\midrule
+1 & V & -0.900000 & -0.733333 &  0.000000 \\
+2 & V &  1.300000 & -0.733333 &  0.000000 \\
+3 & V & -0.400000 &  1.466667 &  0.000000 \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\vfill
+\footnotesize Atom numbers in the rendering correspond to the coordinate table.
+\clearpage
+{\LARGE\bfseries\color{smesablue} cdim}\hfill Geometry 12 of 14\par
+\vspace{0.08in}\color{smesablue}\hrule\color{black}\vspace{0.15in}
+\begin{minipage}[t]{0.48\textwidth}
+\centering\includegraphics[width=\linewidth,height=5.7in,keepaspectratio]{\detokenize{geometry_figures/cdim.png}}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}
+\rowcolors{1}{smesalight}{white}
+\begin{tabular}{>{\bfseries\color{smesablue}}p{1.65in}p{3.15in}}
+Input & cdim/cdim.txt \\
+Atoms & N2C3H4Cd (10 atoms) \\
+Charge / multiplicity & 0 / 1 \\
+Method / reference & HF / RHF (default) \\
+Basis & 3-21G \\
+Initial guess & CORE (default) \\
+SCF type & PK (default) \\
+\end{tabular}
+\vspace{0.18in}
+{\large\bfseries\color{smesablue} Cartesian geometry (angstrom)}\par\vspace{0.06in}
+\rowcolors{2}{smesalight}{white}
+\begin{tabular}{r c r r r}
+\toprule
+\# & Atom & $x$ & $y$ & $z$ \\
+\midrule
+1 & N & -2.615701 &  0.796325 &  0.000000 \\
+2 & C & -2.615701 & -0.628175 &  0.000000 \\
+3 & C & -1.260921 & -1.068370 &  0.000000 \\
+4 & N & -0.423621 &  0.084075 &  0.000000 \\
+5 & C & -1.260921 &  1.236519 &  0.000000 \\
+6 & H & -0.681525 &  2.537865 &  0.000000 \\
+7 & Cd &  0.993076 & -0.064826 &  0.000000 \\
+8 & H & -1.034297 & -2.134551 &  0.000000 \\
+9 & H & -3.559669 & -1.173175 &  0.000000 \\
+10 & H & -3.559669 &  1.341325 &  0.000000 \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\vfill
+\footnotesize Atom numbers in the rendering correspond to the coordinate table.
+\clearpage
+{\LARGE\bfseries\color{smesablue} H4 square}\hfill Geometry 13 of 14\par
+\vspace{0.08in}\color{smesablue}\hrule\color{black}\vspace{0.15in}
+\begin{minipage}[t]{0.48\textwidth}
+\centering\includegraphics[width=\linewidth,height=5.7in,keepaspectratio]{\detokenize{geometry_figures/square_H4.png}}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}
+\rowcolors{1}{smesalight}{white}
+\begin{tabular}{>{\bfseries\color{smesablue}}p{1.65in}p{3.15in}}
+Input & square\_H4/square\_H4.txt \\
+Atoms & H4 (4 atoms) \\
+Charge / multiplicity & 0 / 1 \\
+Method / reference & HF / RHF (default) \\
+Basis & cc-pVQZ \\
+Initial guess & GWH \\
+SCF type & PK (default) \\
+\end{tabular}
+\vspace{0.18in}
+{\large\bfseries\color{smesablue} Cartesian geometry (angstrom)}\par\vspace{0.06in}
+\rowcolors{2}{smesalight}{white}
+\begin{tabular}{r c r r r}
+\toprule
+\# & Atom & $x$ & $y$ & $z$ \\
+\midrule
+1 & H &  1.414214 &  0.000000 &  0.000000 \\
+2 & H &  0.000000 &  1.414214 &  0.000000 \\
+3 & H & -1.414214 &  0.000000 &  0.000000 \\
+4 & H &  0.000000 & -1.414214 &  0.000000 \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\vfill
+\footnotesize Atom numbers in the rendering correspond to the coordinate table.
+\clearpage
+{\LARGE\bfseries\color{smesablue} N2 stretched}\hfill Geometry 14 of 14\par
+\vspace{0.08in}\color{smesablue}\hrule\color{black}\vspace{0.15in}
+\begin{minipage}[t]{0.48\textwidth}
+\centering\includegraphics[width=\linewidth,height=5.7in,keepaspectratio]{\detokenize{geometry_figures/stretched_N2.png}}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}
+\rowcolors{1}{smesalight}{white}
+\begin{tabular}{>{\bfseries\color{smesablue}}p{1.65in}p{3.15in}}
+Input & stretched\_N2/stretched\_N2.txt \\
+Atoms & N2 (2 atoms) \\
+Charge / multiplicity & 0 / 1 \\
+Method / reference & HF / RHF (default) \\
+Basis & cc-pVTZ \\
+Initial guess & CORE (default) \\
+SCF type & PK (default) \\
+\end{tabular}
+\vspace{0.18in}
+{\large\bfseries\color{smesablue} Cartesian geometry (angstrom)}\par\vspace{0.06in}
+\rowcolors{2}{smesalight}{white}
+\begin{tabular}{r c r r r}
+\toprule
+\# & Atom & $x$ & $y$ & $z$ \\
+\midrule
+1 & N &  0.000000 &  0.000000 & -4.500000 \\
+2 & N &  0.000000 &  0.000000 &  4.500000 \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\vfill
+\footnotesize Atom numbers in the rendering correspond to the coordinate table.
+\clearpage
+\end{document}

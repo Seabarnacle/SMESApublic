@@ -1,0 +1,7 @@
+BASIS_SET = "LANL2DZ"
+REFERENCE = "UHF"
+Co2 = psi4.geometry("""
+0 1
+Co 0.0 0.0 -1.10
+Co 0.0 0.0  1.10
+""")

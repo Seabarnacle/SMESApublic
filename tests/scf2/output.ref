@@ -1,0 +1,269 @@
+
+    -----------------------------------------------------------------------
+          Psi4: An Open-Source Ab Initio Electronic Structure Package
+                               Psi4 1.1rc3.dev5 
+
+                         Git: Rev {master} 3fbd859 
+
+
+    R. M. Parrish, L. A. Burns, D. G. A. Smith, A. C. Simmonett,
+    A. E. DePrince III, E. G. Hohenstein, U. Bozkaya, A. Yu. Sokolov,
+    R. Di Remigio, R. M. Richard, J. F. Gonthier, A. M. James,
+    H. R. McAlexander, A. Kumar, M. Saitow, X. Wang, B. P. Pritchard,
+    P. Verma, H. F. Schaefer III, K. Patkowski, R. A. King, E. F. Valeev,
+    F. A. Evangelista, J. M. Turney, T. D. Crawford, and C. D. Sherrill,
+    J. Chem. Theory Comput. in press (2017).
+    (doi: 10.1021/acs.jctc.7b00174)
+
+    -----------------------------------------------------------------------
+
+
+    Psi4 started on: Monday, 15 May 2017 03:39PM
+
+    Process ID:  18829
+    PSIDATADIR: /home/psilocaluser/gits/hrw-direct/objdir4/stage/usr/local/psi4/share/psi4
+    Memory:     500.0 MiB
+    Threads:    1
+    
+  ==> Input File <==
+
+--------------------------------------------------------------------------
+#! RI-SCF cc-pVTZ energy of water, with Z-matrix input and cc-pVTZ-RI auxilliary basis.
+
+nucenergy =   8.80146552997207  #TEST
+refenergy = -76.05098620307962  #TEST
+
+molecule h2o {
+    O
+    H 1 1.0
+    H 1 1.0 2 104.5
+}
+
+set {
+  basis        cc-pVTZ
+  scf_type     df
+  e_convergence   10
+}
+
+thisenergy = energy('scf')
+
+compare_values(nucenergy, h2o.nuclear_repulsion_energy(), 9, "Nuclear repulsion energy") #TEST
+compare_values(refenergy, thisenergy, 9, "Reference energy")                             #TEST
+--------------------------------------------------------------------------
+
+*** tstart() called on psinet
+*** at Mon May 15 15:39:52 2017
+
+   => Loading Basis Set <=
+
+    Name: CC-PVTZ
+    Role: ORBITAL
+    Keyword: BASIS
+    atoms 1   entry O          line   247 file /home/psilocaluser/gits/hrw-direct/objdir4/stage/usr/local/psi4/share/psi4/basis/cc-pvtz.gbs 
+    atoms 2-3 entry H          line    20 file /home/psilocaluser/gits/hrw-direct/objdir4/stage/usr/local/psi4/share/psi4/basis/cc-pvtz.gbs 
+
+    There are an even number of electrons - assuming singlet.
+    Specify the multiplicity in the molecule input block.
+
+
+         ---------------------------------------------------------
+                                   SCF
+            by Justin Turney, Rob Parrish, and Andy Simmonett
+                              RHF Reference
+                        1 Threads,    500 MiB Core
+         ---------------------------------------------------------
+
+  ==> Geometry <==
+
+    Molecular point group: c2v
+    Full point group: C2v
+
+    Geometry (in Angstrom), charge = 0, multiplicity = 1:
+
+       Center              X                  Y                   Z               Mass       
+    ------------   -----------------  -----------------  -----------------  -----------------
+           O          0.000000000000     0.000000000000    -0.068516219310    15.994914619560
+           H          0.000000000000    -0.790689573744     0.543701060724     1.007825032070
+           H          0.000000000000     0.790689573744     0.543701060724     1.007825032070
+
+  Running in c2v symmetry.
+
+  Rotational constants: A =     25.12555  B =     13.37733  C =      8.72955 [cm^-1]
+  Rotational constants: A = 753245.06586  B = 401042.16407  C = 261705.25278 [MHz]
+  Nuclear repulsion =    8.801465529972067
+
+  Charge       = 0
+  Multiplicity = 1
+  Electrons    = 10
+  Nalpha       = 5
+  Nbeta        = 5
+
+  ==> Algorithm <==
+
+  SCF Algorithm Type is DF.
+  DIIS enabled.
+  MOM disabled.
+  Fractional occupation disabled.
+  Guess Type is SAD.
+  Energy threshold   = 1.00e-10
+  Density threshold  = 1.00e-06
+  Integral threshold = 0.00e+00
+
+  ==> Primary Basis <==
+
+  Basis Set: CC-PVTZ
+    Blend: CC-PVTZ
+    Number of shells: 22
+    Number of basis function: 58
+    Number of Cartesian functions: 65
+    Spherical Harmonics?: true
+    Max angular momentum: 3
+
+   => Loading Basis Set <=
+
+    Name: (CC-PVTZ AUX)
+    Role: JKFIT
+    Keyword: DF_BASIS_SCF
+    atoms 1   entry O          line   228 file /home/psilocaluser/gits/hrw-direct/objdir4/stage/usr/local/psi4/share/psi4/basis/cc-pvtz-jkfit.gbs 
+    atoms 2-3 entry H          line    50 file /home/psilocaluser/gits/hrw-direct/objdir4/stage/usr/local/psi4/share/psi4/basis/cc-pvtz-jkfit.gbs 
+
+  ==> Pre-Iterations <==
+
+   -------------------------------------------------------
+    Irrep   Nso     Nmo     Nalpha   Nbeta   Ndocc  Nsocc
+   -------------------------------------------------------
+     A1        23      23       0       0       0       0
+     A2         7       7       0       0       0       0
+     B1        11      11       0       0       0       0
+     B2        17      17       0       0       0       0
+   -------------------------------------------------------
+    Total      58      58       5       5       5       0
+   -------------------------------------------------------
+
+  ==> Integral Setup <==
+
+  ==> DFJK: Density-Fitted J/K Matrices <==
+
+    J tasked:                  Yes
+    K tasked:                  Yes
+    wK tasked:                  No
+    OpenMP threads:              1
+    Integrals threads:           1
+    Memory (MB):               375
+    Algorithm:                Core
+    Integral Cache:           NONE
+    Schwarz Cutoff:          1E-12
+    Fitting Condition:       1E-12
+
+   => Auxiliary Basis Set <=
+
+  Basis Set: (CC-PVTZ AUX)
+    Blend: CC-PVTZ-JKFIT
+    Number of shells: 45
+    Number of basis function: 139
+    Number of Cartesian functions: 166
+    Spherical Harmonics?: true
+    Max angular momentum: 4
+
+  Minimum eigenvalue in the overlap matrix is 2.9026033945E-03.
+  Using Symmetric Orthogonalization.
+
+  SCF Guess: Superposition of Atomic Densities via on-the-fly atomic UHF.
+
+  ==> Iterations <==
+
+                           Total Energy        Delta E     RMS |[F,P]|
+
+   @DF-RHF iter   0:   -75.81950625139463   -7.58195e+01   4.94638e-02 
+   @DF-RHF iter   1:   -76.02647944910504   -2.06973e-01   7.99253e-03 
+   @DF-RHF iter   2:   -76.04416086612585   -1.76814e-02   4.70691e-03 DIIS
+   @DF-RHF iter   3:   -76.05086729203391   -6.70643e-03   4.64362e-04 DIIS
+   @DF-RHF iter   4:   -76.05097712487705   -1.09833e-04   1.02373e-04 DIIS
+   @DF-RHF iter   5:   -76.05098583147711   -8.70660e-06   1.89553e-05 DIIS
+   @DF-RHF iter   6:   -76.05098619063759   -3.59160e-07   3.45800e-06 DIIS
+   @DF-RHF iter   7:   -76.05098620272923   -1.20916e-08   5.59551e-07 DIIS
+   @DF-RHF iter   8:   -76.05098620307629   -3.47057e-10   5.49556e-08 DIIS
+   @DF-RHF iter   9:   -76.05098620307943   -3.14060e-12   5.92306e-09 DIIS
+
+  ==> Post-Iterations <==
+
+    Orbital Energies (a.u.)
+    -----------------------
+
+    Doubly Occupied:                                                      
+
+       1A1   -20.562138     2A1    -1.324719     1B2    -0.687037  
+       3A1    -0.569630     1B1    -0.501255  
+
+    Virtual:                                                              
+
+       4A1     0.137557     2B2     0.199842     3B2     0.526492  
+       5A1     0.576831     6A1     0.677461     2B1     0.785997  
+       7A1     0.793875     4B2     0.805787     1A2     0.852292  
+       3B1     0.951778     8A1     1.165822     5B2     1.172443  
+       6B2     1.489228     9A1     1.501210     4B1     2.019244  
+       2A2     2.048947     7B2     2.115800    10A1     2.157398  
+      11A1     2.253311    12A1     2.570131     8B2     2.925729  
+       5B1     3.356690    13A1     3.471321     3A2     3.552110  
+       9B2     3.599876     6B1     3.766354    10B2     3.826770  
+      14A1     3.874687     4A2     3.936042     7B1     4.015354  
+      11B2     4.055492    15A1     4.135577     5A2     4.246989  
+      16A1     4.323614    12B2     4.478353     8B1     4.645991  
+      13B2     4.776742    17A1     5.012617    18A1     5.229074  
+      14B2     5.516784     9B1     5.976687    19A1     6.414996  
+      10B1     6.772506     6A2     6.849685    20A1     6.905158  
+      15B2     6.934087    11B1     7.012922    21A1     7.168713  
+       7A2     7.181120    22A1     7.433881    16B2     7.697134  
+      17B2     8.106356    23A1    12.196039  
+
+    Final Occupation by Irrep:
+             A1    A2    B1    B2 
+    DOCC [     3,    0,    1,    1 ]
+
+  Energy converged.
+
+  @DF-RHF Final Energy:   -76.05098620307943
+
+   => Energetics <=
+
+    Nuclear Repulsion Energy =              8.8014655299720665
+    One-Electron Energy =                -122.4153436966795141
+    Two-Electron Energy =                  37.5628919636280187
+    DFT Exchange-Correlation Energy =       0.0000000000000000
+    Empirical Dispersion Energy =           0.0000000000000000
+    PCM Polarization Energy =               0.0000000000000000
+    EFP Energy =                            0.0000000000000000
+    Total Energy =                        -76.0509862030794324
+
+
+
+Properties will be evaluated at   0.000000,   0.000000,   0.000000 Bohr
+
+Properties computed using the SCF density matrix
+
+  Nuclear Dipole Moment: (a.u.)
+     X:     0.0000      Y:     0.0000      Z:     1.0191
+
+  Electronic Dipole Moment: (a.u.)
+     X:     0.0000      Y:     0.0000      Z:    -0.2092
+
+  Dipole Moment: (a.u.)
+     X:     0.0000      Y:     0.0000      Z:     0.8099     Total:     0.8099
+
+  Dipole Moment: (Debye)
+     X:     0.0000      Y:     0.0000      Z:     2.0586     Total:     2.0586
+
+
+*** tstop() called on psinet at Mon May 15 15:39:53 2017
+Module time:
+	user time   =       0.55 seconds =       0.01 minutes
+	system time =       0.02 seconds =       0.00 minutes
+	total time  =          1 seconds =       0.02 minutes
+Total time:
+	user time   =       0.55 seconds =       0.01 minutes
+	system time =       0.02 seconds =       0.00 minutes
+	total time  =          1 seconds =       0.02 minutes
+	Nuclear repulsion energy..........................................PASSED
+	Reference energy..................................................PASSED
+
+*** Psi4 exiting successfully. Buy a developer a beer!

@@ -1,0 +1,3465 @@
+
+    -----------------------------------------------------------------------
+          Psi4: An Open-Source Ab Initio Electronic Structure Package
+                               Psi4 undefined 
+
+                         Git: Rev {oscillator} 6a3e691 dirty
+
+
+    D. G. A. Smith, L. A. Burns, A. C. Simmonett, R. M. Parrish,
+    M. C. Schieber, R. Galvelis, P. Kraus, H. Kruse, R. Di Remigio,
+    A. Alenaizan, A. M. James, S. Lehtola, J. P. Misiewicz, M. Scheurer,
+    R. A. Shaw, J. B. Schriber, Y. Xie, Z. L. Glick, D. A. Sirianni,
+    J. S. O'Brien, J. M. Waldrop, A. Kumar, E. G. Hohenstein,
+    B. P. Pritchard, B. R. Brooks, H. F. Schaefer III, A. Yu. Sokolov,
+    K. Patkowski, A. E. DePrince III, U. Bozkaya, R. A. King,
+    F. A. Evangelista, J. M. Turney, T. D. Crawford, C. D. Sherrill,
+    J. Chem. Phys. 152(18) 184108 (2020). https://doi.org/10.1063/5.0006002
+
+                            Additional Code Authors
+    E. T. Seidl, C. L. Janssen, E. F. Valeev, M. L. Leininger,
+    J. F. Gonthier, R. M. Richard, H. R. McAlexander, M. Saitow, X. Wang,
+    P. Verma, M. H. Lechner, and A. Jiang
+
+             Previous Authors, Complete List of Code Contributors,
+                       and Citations for Specific Modules
+    https://github.com/psi4/psi4/blob/master/codemeta.json
+    https://github.com/psi4/psi4/graphs/contributors
+    http://psicode.org/psi4manual/master/introduction.html#citing-psifour
+
+    -----------------------------------------------------------------------
+
+
+    Psi4 started on: Wednesday, 30 March 2022 07:35PM
+
+    Process ID: 39457
+    Host:       Jonathons-MacBook-Pro.local
+    PSIDATADIR: /Users/jonathonmisiewicz/psi4/objdir/stage/share/psi4
+    Memory:     500.0 MiB
+    Threads:    1
+    
+  ==> Input File <==
+
+--------------------------------------------------------------------------
+#! EOM-CCSD/6-31g excited state transition data for water with
+#! two excited states per irrep
+
+molecule h2o {
+  O
+  H 1 R
+  H 1 R 2 A
+
+  R = 1.0
+  A = 104.5
+
+}
+
+set {
+  basis 6-31g
+  print 1
+  roots_per_irrep [2, 2, 2, 2]
+}
+
+wfn = properties('eom-ccsd', properties=['oscillator_strength'], return_wfn=True)[1]
+
+### ccdensity checks
+
+refnre     =   8.8014655645673745 # TEST
+refscf     = -75.9801579219344205 # TEST
+refccsd    = -76.119564846883890  # TEST
+refoverlap =   0.95214891671      # TEST
+
+compare_values(refnre, h2o.nuclear_repulsion_energy(), 6, "Nuclear Repulsion Energy") # TEST
+compare_values(refscf, wfn.variable("SCF TOTAL ENERGY"), 6, "SCF Energy") # TEST
+compare_values(refccsd, wfn.variable("CCSD TOTAL ENERGY"), 6, "CCSD Energy") # TEST
+compare_values(refoverlap, wfn.variable("LEFT-RIGHT CCSD EIGENVECTOR OVERLAP"), 5, "Left-Right CCSD Overlap") # TEST
+
+### Excitation energy checks
+
+ref1A1 = -75.731653609639 # TEST
+ref2A1 = -75.444482974730 # TEST
+ref0A2 = -75.748354042274 # TEST
+ref1A2 = -75.159059117138 # TEST
+ref0B1 = -75.828418082855 # TEST
+ref1B1 = -75.177505240374 # TEST
+ref0B2 = -75.646805408168 # TEST
+ref1B2 = -75.576701759343 # TEST
+
+compare_values(ref1A1, core.variable("CCSD ROOT 1 (A1) TOTAL ENERGY"), 6, "Root 1 (A1) Energy") # TEST
+compare_values(ref2A1, core.variable("CCSD ROOT 2 (A1) TOTAL ENERGY"), 6, "Root 2 (A1) Energy") # TEST
+compare_values(ref0B1, core.variable("CCSD ROOT 0 (B1) TOTAL ENERGY"), 6, "Root 0 (B1) Energy") # TEST
+compare_values(ref1B1, core.variable("CCSD ROOT 1 (B1) TOTAL ENERGY"), 6, "Root 1 (B1) Energy") # TEST
+compare_values(ref0A2, core.variable("CCSD ROOT 0 (A2) TOTAL ENERGY"), 6, "Root 0 (A2) Energy") # TEST
+compare_values(ref1A2, core.variable("CCSD ROOT 1 (A2) TOTAL ENERGY"), 6, "Root 1 (A2) Energy") # TEST
+compare_values(ref0B2, core.variable("CCSD ROOT 0 (B2) TOTAL ENERGY"), 6, "Root 0 (B2) Energy") # TEST
+compare_values(ref1B2, core.variable("CCSD ROOT 1 (B2) TOTAL ENERGY"), 6, "Root 1 (B2) Energy") # TEST
+
+### Transition checks
+
+test_data = { # TEST
+"ROOT 0 (A1) -> ROOT 1 (A1)": {"OSCILLATOR STRENGTH (LEN)": 0.11765701, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 5.68844298e+08, "EINSTEIN B (LEN)": 5.53538025e+19}, # TEST
+"ROOT 0 (A1) -> ROOT 2 (A1)": {"OSCILLATOR STRENGTH (LEN)": 0.27865575, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 4.08029704e+09, "EINSTEIN B (LEN)": 7.53309728e+19}, # TEST
+"ROOT 0 (A1) -> ROOT 0 (A2)": {"OSCILLATOR STRENGTH (LEN)": 0, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 0, "EINSTEIN B (LEN)": 0}, # TEST
+"ROOT 0 (A1) -> ROOT 1 (A2)": {"OSCILLATOR STRENGTH (LEN)": 0, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 0, "EINSTEIN B (LEN)": 0}, # TEST
+"ROOT 0 (A1) -> ROOT 0 (B1)": {"OSCILLATOR STRENGTH (LEN)": 0.01020036, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 2.77811574e+07, "EINSTEIN B (LEN)": 6.39389598e+18}, # TEST
+"ROOT 0 (A1) -> ROOT 1 (B1)": {"OSCILLATOR STRENGTH (LEN)": 0.00013981, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 3.98656351e+06, "EINSTEIN B (LEN)": 2.70841165e+16}, # TEST
+"ROOT 0 (A1) -> ROOT 0 (B2)": {"OSCILLATOR STRENGTH (LEN)": 0.11081089, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 7.95744713e+08, "EINSTEIN B (LEN)": 4.27764037e+19}, # TEST
+"ROOT 0 (A1) -> ROOT 1 (B2)": {"OSCILLATOR STRENGTH (LEN)": 0.47778324, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 4.52399815e+09, "EINSTEIN B (LEN)": 1.60621107e+20}, # TEST
+"ROOT 1 (A1) -> ROOT 2 (A1)": {"OSCILLATOR STRENGTH (LEN)": 0.00057739, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 1.52987978e+06, "EINSTEIN B (LEN)": 3.66934337e+17}, # TEST
+"ROOT 0 (A2) -> ROOT 1 (A1)": {"OSCILLATOR STRENGTH (LEN)": 0, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 0, "EINSTEIN B (LEN)": 0}, # TEST
+"ROOT 0 (A2) -> ROOT 2 (A1)": {"OSCILLATOR STRENGTH (LEN)": 0, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 0, "EINSTEIN B (LEN)": 0}, # TEST
+"ROOT 1 (A1) -> ROOT 1 (A2)": {"OSCILLATOR STRENGTH (LEN)": 0, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 0, "EINSTEIN B (LEN)": 0}, # TEST
+"ROOT 2 (A1) -> ROOT 1 (A2)": {"OSCILLATOR STRENGTH (LEN)": 0, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 0, "EINSTEIN B (LEN)": 0}, # TEST
+"ROOT 0 (A2) -> ROOT 1 (A2)": {"OSCILLATOR STRENGTH (LEN)": 0.02637458, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 2.94280787e+08, "EINSTEIN B (LEN)": 8.16798514e+18}, # TEST
+"ROOT 0 (B1) -> ROOT 1 (A1)": {"OSCILLATOR STRENGTH (LEN)": 0.00183461, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 5.51932950e+05, "EINSTEIN B (LEN)": 3.46010792e+18}, # TEST
+"ROOT 0 (B1) -> ROOT 2 (A1)": {"OSCILLATOR STRENGTH (LEN)": 0.00072933, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 3.45424140e+06, "EINSTEIN B (LEN)": 3.46681236e+17}, # TEST
+"ROOT 0 (B1) -> ROOT 0 (A2)": {"OSCILLATOR STRENGTH (LEN)": 0.13505618, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 2.78163630e+07, "EINSTEIN B (LEN)": 3.07849865e+20}, # TEST
+"ROOT 0 (B1) -> ROOT 1 (A2)": {"OSCILLATOR STRENGTH (LEN)": 0.00022287, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 3.20831735e+06, "EINSTEIN B (LEN)": 6.07646777e+16}, # TEST
+"ROOT 1 (A1) -> ROOT 1 (B1)": {"OSCILLATOR STRENGTH (LEN)": 0.00407585, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 4.02143425e+07, "EINSTEIN B (LEN)": 1.34231340e+18}, # TEST
+"ROOT 2 (A1) -> ROOT 1 (B1)": {"OSCILLATOR STRENGTH (LEN)": 0.00009918, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 2.27124828e+05, "EINSTEIN B (LEN)": 6.77938995e+16}, # TEST
+"ROOT 0 (A2) -> ROOT 1 (B1)": {"OSCILLATOR STRENGTH (LEN)": 0.00222211, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 2.32658437e+07, "EINSTEIN B (LEN)": 7.10406060e+17}, # TEST
+"ROOT 1 (B1) -> ROOT 1 (A2)": {"OSCILLATOR STRENGTH (LEN)": 0.00083485, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 9.12701408e+03, "EINSTEIN B (LEN)": 8.25970500e+18}, # TEST
+"ROOT 0 (B1) -> ROOT 1 (B1)": {"OSCILLATOR STRENGTH (LEN)": 0.01452848, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 1.97777397e+08, "EINSTEIN B (LEN)": 4.07342072e+18}, # TEST
+"ROOT 1 (A1) -> ROOT 0 (B2)": {"OSCILLATOR STRENGTH (LEN)": 0.14677067, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 3.39496613e+07, "EINSTEIN B (LEN)": 3.15688423e+20}, # TEST
+"ROOT 0 (B2) -> ROOT 2 (A1)": {"OSCILLATOR STRENGTH (LEN)": 0.01132526, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 1.48952309e+07, "EINSTEIN B (LEN)": 1.02156558e+19}, # TEST
+"ROOT 0 (A2) -> ROOT 0 (B2)": {"OSCILLATOR STRENGTH (LEN)": 0.00210954, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 6.98949847e+05, "EINSTEIN B (LEN)": 3.79118423e+18}, # TEST
+"ROOT 0 (B2) -> ROOT 1 (A2)": {"OSCILLATOR STRENGTH (LEN)": 0.00404749, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 3.09374861e+07, "EINSTEIN B (LEN)": 1.51444752e+18}, # TEST
+"ROOT 0 (B1) -> ROOT 0 (B2)": {"OSCILLATOR STRENGTH (LEN)": 0, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 0, "EINSTEIN B (LEN)": 0}, # TEST
+"ROOT 0 (B2) -> ROOT 1 (B1)": {"OSCILLATOR STRENGTH (LEN)": 0, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 0, "EINSTEIN B (LEN)": 0}, # TEST
+"ROOT 1 (A1) -> ROOT 1 (B2)": {"OSCILLATOR STRENGTH (LEN)": 0.00013457, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 1.03816191e+05, "EINSTEIN B (LEN)": 1.58498780e+17}, # TEST
+"ROOT 1 (B2) -> ROOT 2 (A1)": {"OSCILLATOR STRENGTH (LEN)": 0.19251008, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 1.08131114e+08, "EINSTEIN B (LEN)": 2.65718827e+20}, # TEST
+"ROOT 0 (A2) -> ROOT 1 (B2)": {"OSCILLATOR STRENGTH (LEN)": 0.00000678, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 6.41811830e+03, "EINSTEIN B (LEN)": 7.20792236e+15}, # TEST
+"ROOT 1 (B2) -> ROOT 1 (A2)": {"OSCILLATOR STRENGTH (LEN)": 0.00113432, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 6.35705000e+06, "EINSTEIN B (LEN)": 4.95669569e+17}, # TEST
+"ROOT 0 (B1) -> ROOT 1 (B2)": {"OSCILLATOR STRENGTH (LEN)": 0, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 0, "EINSTEIN B (LEN)": 0}, # TEST
+"ROOT 1 (B2) -> ROOT 1 (B1)": {"OSCILLATOR STRENGTH (LEN)": 0, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 0, "EINSTEIN B (LEN)": 0}, # TEST
+"ROOT 0 (B2) -> ROOT 1 (B2)": {"OSCILLATOR STRENGTH (LEN)": 0.00009225, "ROTARY STRENGTH (LEN)": 0, "ROTARY STRENGTH (VEL)": 0, "EINSTEIN A (LEN)": 1.45663529e+04, "EINSTEIN B (LEN)": 2.40148617e+17}, # TEST
+}
+
+for transition, data in test_data.items(): # TEST
+    for property, value in data.items(): # TEST
+        # Change these numbers to 6 ASAP # TEST
+        if "EINSTEIN" not in property: # TEST
+            compare_values(value, wfn.variable(f"CC {transition} {property}"), 6, f"CC {transition} {property}") # TEST
+            compare_values(value, wfn.variable(f"CCSD {transition} {property}"), 6, f"CCSD {transition} {property}") # TEST
+        else: # TEST 
+            # Large numbers need "special" testing. # TEST
+            compare_values(value, wfn.variable(f"CC {transition} {property}"), f"CC {transition} {property}", atol=1e-6, rtol=1e-5) # TEST
+            compare_values(value, wfn.variable(f"CCSD {transition} {property}"), f"CCSD {transition} {property}", atol=1e-6, rtol=1e-5) # TEST
+
+
+--------------------------------------------------------------------------
+
+*** tstart() called on Jonathons-MacBook-Pro.local
+*** at Wed Mar 30 19:35:36 2022
+
+   => Loading Basis Set <=
+
+    Name: 6-31G
+    Role: ORBITAL
+    Keyword: BASIS
+    atoms 1   entry O          line   117 file /Users/jonathonmisiewicz/psi4/objdir/stage/share/psi4/basis/6-31g.gbs 
+    atoms 2-3 entry H          line    26 file /Users/jonathonmisiewicz/psi4/objdir/stage/share/psi4/basis/6-31g.gbs 
+
+
+         ---------------------------------------------------------
+                                   SCF
+               by Justin Turney, Rob Parrish, Andy Simmonett
+                          and Daniel G. A. Smith
+                              RHF Reference
+                        1 Threads,    500 MiB Core
+         ---------------------------------------------------------
+
+  ==> Geometry <==
+
+    Molecular point group: c2v
+    Full point group: C2v
+
+    Geometry (in Angstrom), charge = 0, multiplicity = 1:
+
+       Center              X                  Y                   Z               Mass       
+    ------------   -----------------  -----------------  -----------------  -----------------
+         O            0.000000000000     0.000000000000    -0.068516219320    15.994914619570
+         H            0.000000000000    -0.790689573744     0.543701060715     1.007825032230
+         H            0.000000000000     0.790689573744     0.543701060715     1.007825032230
+
+  Running in c2v symmetry.
+
+  Rotational constants: A =     25.12555  B =     13.37733  C =      8.72955 [cm^-1]
+  Rotational constants: A = 753245.07149  B = 401042.16706  C = 261705.25473 [MHz]
+  Nuclear repulsion =    8.801465564567374
+
+  Charge       = 0
+  Multiplicity = 1
+  Electrons    = 10
+  Nalpha       = 5
+  Nbeta        = 5
+
+  ==> Algorithm <==
+
+  SCF Algorithm Type is PK.
+  DIIS enabled.
+  MOM disabled.
+  Fractional occupation disabled.
+  Guess Type is SAD.
+  Energy threshold   = 1.00e-10
+  Density threshold  = 1.00e-10
+  Integral threshold = 1.00e-12
+
+  ==> Primary Basis <==
+
+  Basis Set: 6-31G
+    Blend: 6-31G
+    Number of shells: 9
+    Number of basis functions: 13
+    Number of Cartesian functions: 13
+    Spherical Harmonics?: false
+    Max angular momentum: 1
+
+  ==> Integral Setup <==
+
+  Using in-core PK algorithm.
+   Calculation information:
+      Number of atoms:                   3
+      Number of AO shells:               9
+      Number of primitives:             22
+      Number of atomic orbitals:        13
+      Number of basis functions:        13
+
+      Integral cutoff                 1.00e-12
+      Number of threads:                 1
+
+  Performing in-core PK
+  Using 8372 doubles for integral storage.
+  We computed 1035 shell quartets total.
+  Whereas there are 1035 unique shell quartets.
+
+  ==> DiskJK: Disk-Based J/K Matrices <==
+
+    J tasked:                  Yes
+    K tasked:                  Yes
+    wK tasked:                  No
+    Memory [MiB]:              375
+    Schwarz Cutoff:          1E-12
+
+    OpenMP threads:              1
+
+  Minimum eigenvalue in the overlap matrix is 6.8932338569E-02.
+  Reciprocal condition number of the overlap matrix is 2.3411885555E-02.
+    Using symmetric orthogonalization.
+
+  ==> Pre-Iterations <==
+
+  SCF Guess: Superposition of Atomic Densities via on-the-fly atomic UHF (no occupation information).
+
+   -------------------------
+    Irrep   Nso     Nmo    
+   -------------------------
+     A1         7       7 
+     A2         0       0 
+     B1         2       2 
+     B2         4       4 
+   -------------------------
+    Total      13      13
+   -------------------------
+
+  ==> Iterations <==
+
+                        Total Energy        Delta E     RMS |[F,P]|
+
+   @RHF iter SAD:   -75.45943592521860   -7.54594e+01   0.00000e+00 
+   @RHF iter   1:   -75.90436458408740   -4.44929e-01   4.85074e-02 DIIS/ADIIS
+   @RHF iter   2:   -75.95858768446703   -5.42231e-02   2.97684e-02 DIIS/ADIIS
+   @RHF iter   3:   -75.97907117898012   -2.04835e-02   5.69754e-03 DIIS/ADIIS
+   @RHF iter   4:   -75.98014026978679   -1.06909e-03   5.91516e-04 DIIS/ADIIS
+   @RHF iter   5:   -75.98015750570116   -1.72359e-05   6.90931e-05 DIIS
+   @RHF iter   6:   -75.98015790504526   -3.99344e-07   1.26130e-05 DIIS
+   @RHF iter   7:   -75.98015792108532   -1.60401e-08   2.75824e-06 DIIS
+   @RHF iter   8:   -75.98015792192031   -8.34987e-10   4.45126e-07 DIIS
+   @RHF iter   9:   -75.98015792193408   -1.37703e-11   4.79773e-08 DIIS
+   @RHF iter  10:   -75.98015792193432   -2.41585e-13   4.64301e-09 DIIS
+   @RHF iter  11:   -75.98015792193435   -2.84217e-14   4.23129e-10 DIIS
+   @RHF iter  12:   -75.98015792193435    0.00000e+00   2.82893e-11 DIIS
+  Energy and wave function converged.
+
+
+  ==> Post-Iterations <==
+
+    Orbital Energies [Eh]
+    ---------------------
+
+    Doubly Occupied:                                                      
+
+       1A1   -20.568891     2A1    -1.334712     1B2    -0.686878  
+       3A1    -0.554302     1B1    -0.499291  
+
+    Virtual:                                                              
+
+       4A1     0.193411     2B2     0.287589     3B2     1.041437  
+       5A1     1.130316     2B1     1.164392     6A1     1.220937  
+       4B2     1.368875     7A1     1.693480  
+
+    Final Occupation by Irrep:
+             A1    A2    B1    B2 
+    DOCC [     3,    0,    1,    1 ]
+
+  @RHF Final Energy:   -75.98015792193435
+
+   => Energetics <=
+
+    Nuclear Repulsion Energy =              8.8014655645673745
+    One-Electron Energy =                -122.2750963644307518
+    Two-Electron Energy =                  37.4934728779290225
+    Total Energy =                        -75.9801579219343495
+
+Computation Completed
+
+
+Properties will be evaluated at   0.000000,   0.000000,   0.000000 [a0]
+
+Properties computed using the SCF density matrix
+
+
+ Multipole Moments:
+
+ ------------------------------------------------------------------------------------
+     Multipole            Electronic (a.u.)      Nuclear  (a.u.)        Total (a.u.)
+ ------------------------------------------------------------------------------------
+
+ L = 1.  Multiply by 2.5417464519 to convert [e a0] to [Debye]
+ Dipole X            :          0.0000000            0.0000000            0.0000000
+ Dipole Y            :          0.0000000            0.0000000            0.0000000
+ Dipole Z            :          0.0212967            1.0190771            1.0403737
+ Magnitude           :                                                    1.0403737
+
+ ------------------------------------------------------------------------------------
+
+*** tstop() called on Jonathons-MacBook-Pro.local at Wed Mar 30 19:35:37 2022
+Module time:
+	user time   =       0.48 seconds =       0.01 minutes
+	system time =       0.10 seconds =       0.00 minutes
+	total time  =          1 seconds =       0.02 minutes
+Total time:
+	user time   =       0.48 seconds =       0.01 minutes
+	system time =       0.10 seconds =       0.00 minutes
+	total time  =          1 seconds =       0.02 minutes
+ MINTS: Wrapper to libmints.
+   by Justin Turney
+
+   Calculation information:
+      Number of threads:                 1
+      Number of atoms:                   3
+      Number of AO shells:               9
+      Number of SO shells:               7
+      Number of primitives:             22
+      Number of atomic orbitals:        13
+      Number of basis functions:        13
+
+      Number of irreps:                  4
+      Integral cutoff                 1.00e-12
+      Number of functions per irrep: [   7    0    2    4 ]
+
+ OEINTS: Overlap, kinetic, potential, dipole, and quadrupole integrals
+         stored in file 35.
+
+      Computing two-electron integrals...done
+      Computed 1270 non-zero two-electron integrals.
+        Stored in file 33.
+
+
+*** tstart() called on Jonathons-MacBook-Pro.local
+*** at Wed Mar 30 19:35:37 2022
+
+
+	Wfn Parameters:
+	--------------------
+	Wavefunction         = EOM_CCSD
+	Number of irreps     = 4
+	Number of MOs        = 13
+	Number of active MOs = 13
+	AO-Basis             = NONE
+	Semicanonical        = false
+	Reference            = RHF
+	Print Level          = 1
+
+	IRREP	# MOs	# FZDC	# DOCC	# SOCC	# VIRT	# FZVR
+	-----	-----	------	------	------	------	------
+	 A1	   7	    0	    3	    0	    4	    0
+	 A2	   0	    0	    0	    0	    0	    0
+	 B1	   2	    0	    1	    0	    1	    0
+	 B2	   4	    0	    1	    0	    3	    0
+	Transforming integrals...
+	IWL integrals will be deleted.
+	(OO|OO)...
+	Presorting SO-basis two-electron integrals.
+	Sorting File: SO Ints (nn|nn) nbuckets = 1
+	Constructing frozen core operators
+	Starting first half-transformation.
+	Sorting half-transformed integrals.
+	First half integral transformation complete.
+	Starting second half-transformation.
+	Two-electron integral transformation complete.
+	(OO|OV)...
+	Starting second half-transformation.
+	Two-electron integral transformation complete.
+	(OO|VV)...
+	Starting second half-transformation.
+	Two-electron integral transformation complete.
+	(OV|OO)...
+	Starting first half-transformation.
+	Sorting half-transformed integrals.
+	First half integral transformation complete.
+	Starting second half-transformation.
+	Two-electron integral transformation complete.
+	(OV|OV)...
+	Starting second half-transformation.
+	Two-electron integral transformation complete.
+	(OV|VV)...
+	Starting second half-transformation.
+	Two-electron integral transformation complete.
+	(VV|OO)...
+	Starting first half-transformation.
+	Sorting half-transformed integrals.
+	First half integral transformation complete.
+	Starting second half-transformation.
+	Two-electron integral transformation complete.
+	(VV|OV)...
+	Starting second half-transformation.
+	Two-electron integral transformation complete.
+	(VV|VV)...
+	Starting second half-transformation.
+	Two-electron integral transformation complete.
+	Frozen core energy     =      0.00000000000000
+
+	Size of irrep 0 of <ab|cd> integrals:      0.001 (MW) /      0.005 (MB)
+	Size of irrep 1 of <ab|cd> integrals:      0.000 (MW) /      0.000 (MB)
+	Size of irrep 2 of <ab|cd> integrals:      0.000 (MW) /      0.001 (MB)
+	Size of irrep 3 of <ab|cd> integrals:      0.001 (MW) /      0.005 (MB)
+	Total:                                     0.001 (MW) /      0.011 (MB)
+
+	Size of irrep 0 of <ia|bc> integrals:      0.000 (MW) /      0.003 (MB)
+	Size of irrep 1 of <ia|bc> integrals:      0.000 (MW) /      0.000 (MB)
+	Size of irrep 2 of <ia|bc> integrals:      0.000 (MW) /      0.000 (MB)
+	Size of irrep 3 of <ia|bc> integrals:      0.000 (MW) /      0.002 (MB)
+	Total:                                     0.001 (MW) /      0.006 (MB)
+
+	Size of irrep 0 of tijab amplitudes:       0.000 (MW) /      0.002 (MB)
+	Size of irrep 1 of tijab amplitudes:       0.000 (MW) /      0.000 (MB)
+	Size of irrep 2 of tijab amplitudes:       0.000 (MW) /      0.000 (MB)
+	Size of irrep 3 of tijab amplitudes:       0.000 (MW) /      0.001 (MB)
+	Total:                                     0.000 (MW) /      0.004 (MB)
+
+	Nuclear Rep. energy          =      8.80146556456737
+	SCF energy                   =    -75.98015792193435
+	One-electron energy          =   -122.27509636458187
+	Two-electron energy          =     37.49347287808014
+	Reference energy             =    -75.98015792193435
+
+*** tstop() called on Jonathons-MacBook-Pro.local at Wed Mar 30 19:35:37 2022
+Module time:
+	user time   =       0.01 seconds =       0.00 minutes
+	system time =       0.08 seconds =       0.00 minutes
+	total time  =          0 seconds =       0.00 minutes
+Total time:
+	user time   =       0.50 seconds =       0.01 minutes
+	system time =       0.18 seconds =       0.00 minutes
+	total time  =          1 seconds =       0.02 minutes
+            **************************
+            *                        *
+            *        CCENERGY        *
+            *                        *
+            **************************
+
+    Nuclear Rep. energy (wfn)     =    8.801465564567374
+    SCF energy          (wfn)     =  -75.980157921934349
+    Reference energy    (file100) =  -75.980157921934349
+
+    Input parameters:
+    -----------------
+    Wave function   =     EOM_CCSD
+    Reference wfn   =     RHF
+    Brueckner       =     No
+    Memory (Mbytes) =     524.3
+    Maxiter         =     50
+    R_Convergence   =     1.0e-07
+    E_Convergence   =     1.0e-08
+    Restart         =     Yes
+    DIIS            =     Yes
+    AO Basis        =     NONE
+    ABCD            =     NEW
+    Cache Level     =     2
+    Cache Type      =     LOW
+    Print Level     =     1
+    Num. of threads =     1
+    # Amps to Print =     10
+    Print MP2 Amps? =     No
+    Analyze T2 Amps =     No
+    Print Pair Ener =     No
+    Local CC        =     No
+    SCS-MP2         =     False
+    SCSN-MP2        =     False
+    SCS-CCSD        =     False
+
+MP2 correlation energy -0.1327273368496011
+                Solving CC Amplitude Equations
+                ------------------------------
+  Iter             Energy              RMS        T1Diag      D1Diag    New D1Diag    D2Diag
+  ----     ---------------------    ---------   ----------  ----------  ----------   --------
+     0        -0.132727336849601    0.000e+00    0.000000    0.000000    0.000000    0.104105
+     1        -0.134589929939255    2.973e-02    0.004967    0.010084    0.010084    0.113786
+     2        -0.138786973046135    1.159e-02    0.006104    0.012740    0.012740    0.121780
+     3        -0.139364364730547    2.945e-03    0.006640    0.014402    0.014402    0.123671
+     4        -0.139399028423617    7.447e-04    0.006696    0.014765    0.014765    0.123922
+     5        -0.139413091035242    2.308e-04    0.006738    0.014976    0.014976    0.123962
+     6        -0.139407602007916    6.670e-05    0.006752    0.015042    0.015042    0.123940
+     7        -0.139407071270707    1.450e-05    0.006755    0.015058    0.015058    0.123936
+     8        -0.139406988242707    2.993e-06    0.006756    0.015061    0.015061    0.123936
+     9        -0.139406913450940    7.226e-07    0.006756    0.015061    0.015061    0.123936
+    10        -0.139406927011913    1.250e-07    0.006756    0.015061    0.015061    0.123936
+    11        -0.139406925022839    2.562e-08    0.006756    0.015061    0.015061    0.123936
+    12        -0.139406924949526    3.830e-09    0.006756    0.015061    0.015061    0.123936
+
+    Iterations converged.
+
+
+    Largest TIA Amplitudes:
+              2   0         0.0128556723
+              4   7         0.0100625367
+              4   5        -0.0076287191
+              2   3        -0.0065077225
+              3   4        -0.0062342990
+              1   2        -0.0052561486
+              1   0        -0.0032974099
+              4   6        -0.0027747751
+              1   3         0.0013849932
+              2   2         0.0011500410
+
+    Largest TIjAb Amplitudes:
+      3   3   4   4        -0.0533061677
+      4   4   5   5        -0.0477436522
+      2   2   2   2        -0.0398839206
+      2   3   2   4        -0.0309510654
+      3   2   4   2        -0.0309510654
+      4   4   6   6        -0.0284556952
+      2   2   0   0        -0.0266999230
+      2   4   0   5         0.0264819008
+      4   2   5   0         0.0264819008
+      3   4   4   7        -0.0260449094
+
+    SCF energy       (wfn)                    =  -75.980157921934349
+    Reference energy (file100)                =  -75.980157921934349
+
+    Opposite-spin MP2 correlation energy      =   -0.101705451538630
+    Same-spin MP2 correlation energy          =   -0.031021885310971
+    Singles MP2 correlation energy            =   -0.000000000000000
+    MP2 correlation energy                    =   -0.132727336849601
+      * MP2 total energy                      =  -76.112885258783948
+
+    Opposite-spin CCSD correlation energy     =   -0.114888688875946
+    Same-spin CCSD correlation energy         =   -0.024518236073580
+    Singles CCSD correlation energy           =    0.000000000000000
+    CCSD correlation energy                   =   -0.139406924949526
+      * CCSD total energy                     =  -76.119564846883875
+
+
+			**************************
+			*                        *
+			*         CCHBAR         *
+			*                        *
+			**************************
+
+
+	**********************************************************
+	*  CCEOM: An Equation of Motion Coupled Cluster Program  *
+	**********************************************************
+
+	Nuclear Rep. energy (wfn)     =    8.801465564567374
+	SCF energy          (wfn)     =  -75.980157921934349
+	Reference energy    (file100) =  -75.980157921934349
+	CCSD energy         (file100) =   -0.139406924949526
+
+	Input parameters:
+	-----------------
+	Reference wfn   =     RHF
+	Reference EOM wfn=     RHF
+	Memory (Mbytes) =  524.3
+	ABCD            =     NEW
+	Cache Level     =    2
+	Cache Type      =     LRU
+	Num. of threads =     1
+	Local CC        =     No
+
+
+	CCEOM parameters:
+	-----------------
+	States sought per irrep     = A1 2, A2 2, B1 2, B2 2,
+	Max. number of iterations   =    80
+	Vectors stored per root     =    12
+	Print HbarSS iterations?    =     0
+	Excitation range for HBarSS =     2
+	Eigenvalue tolerance        = 1.0e-05
+	Eigenvalue toleranceSS      = 1.0e-06
+	Residual vector tolerance   = 1.0e-04
+	Residual vector toleranceSS = 1.0e-06
+	Complex tolerance           = 1.0e-12
+	Root for properties         =     2
+	Sym of state for properties =     B2
+	Guess vectors taken from    = SINGLES
+	Restart EOM CC3             = NO
+	Collapse with last vector   = YES
+
+
+
+Fae   dot Fae   total   10.3144564090
+Fmi   dot Fmi   total  426.4809344372
+Fme   dot Fme   total    0.0000305513
+WMBIJ dot WMBIJ total    0.0000000000
+Wmbij dot Wmbij total    0.0000000000
+WMbIj dot WMbIj total    1.2339607178
+WmBiJ dot WmBiJ total    0.0000000000
+Symmetry of ground state: A1
+Symmetry of excited state: A1
+Symmetry of right eigenvector: A1
+Seeking states with multiplicity of 1
+Obtaining initial guess from singles-singles block of Hbar...Done.
+
+Iter=1    L=2     Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.4746717265   4.75e-01    3.76e-01      N
+                     2   0.7389170742   7.39e-01    3.23e-01      N
+Iter=2    L=4     Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.3913403983  -8.33e-02    7.76e-02      N
+                     2   0.6780163829  -6.09e-02    6.45e-02      N
+Iter=3    L=6     Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.3881072162  -3.23e-03    2.66e-02      N
+                     2   0.6754967312  -2.52e-03    2.82e-02      N
+Iter=4    L=8     Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.3879197137  -1.88e-04    6.31e-03      N
+                     2   0.6751801756  -3.17e-04    9.92e-03      N
+Iter=5    L=10    Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.3879053570  -1.44e-05    1.64e-03      N
+                     2   0.6750765366  -1.04e-04    4.14e-03      N
+Iter=6    L=12    Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.3879108854   5.53e-06    5.93e-04      N
+                     2   0.6750815420   5.01e-06    2.11e-03      N
+Iter=7    L=14    Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.3879118470   9.62e-07    1.85e-04      N
+                     2   0.6750845669   3.02e-06    8.48e-04      N
+Iter=8    L=16    Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.3879112824  -5.65e-07    4.91e-05      Y
+                     2   0.6750823655  -2.20e-06    2.88e-04      N
+Iter=9    L=17    Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.3879112372  -4.52e-08    4.36e-05      Y
+                     2   0.6750818722  -4.93e-07    8.97e-05      Y
+Collapsing to only 2 vector(s).
+
+Procedure converged for 2 root(s).
+EOM CCSD R0 for root 0 =   0.02065387946
+EOM CCSD R0 for root 1 =  -0.01903802449
+
+Final Energetic Summary for Converged Roots of Irrep A1
+                     Excitation Energy              Total Energy
+                (eV)     (cm^-1)     (au)             (au)
+EOM State 1     10.556    85136.7   0.3879112372   -75.731653609640
+
+Largest components of excited wave function #1:
+ RIA (libdpd indices) : (cscf notation)
+         2 >   0      :       3a1 >    4a1 :   -0.6807538095
+         0 >   0      :       1b2 >    2b2 :   -0.0740421025
+         2 >   1      :       3a1 >    5a1 :   -0.0345654628
+         1 >   0      :       2a1 >    4a1 :   -0.0336386757
+         0 >   0      :       1b1 >    2b1 :   -0.0304429540
+ RIjAb (libdpd indices)     : (cscf notation)
+        2   2 >   0   0     :    3a1    3a1 >    4a1    4a1 :    0.1110147861
+        2   0 >   0   0     :    3a1    1b2 >    4a1    2b2 :   -0.0666262966
+        0   2 >   0   0     :    1b2    3a1 >    2b2    4a1 :   -0.0666262966
+        2   2 >   0   0     :    3a1    3a1 >    2b2    2b2 :    0.0476626222
+        2   2 >   0   2     :    3a1    3a1 >    4a1    6a1 :   -0.0417426767
+EOM State 2     18.370   148163.3   0.6750818722   -75.444482974730
+
+Largest components of excited wave function #2:
+ RIA (libdpd indices) : (cscf notation)
+         0 >   0      :       1b2 >    2b2 :   -0.6764665619
+         0 >   0      :       1b1 >    2b1 :    0.0926656455
+         2 >   0      :       3a1 >    4a1 :    0.0652548903
+         2 >   2      :       3a1 >    6a1 :    0.0621558889
+         2 >   1      :       3a1 >    5a1 :   -0.0430899126
+ RIjAb (libdpd indices)     : (cscf notation)
+        0   0 >   0   0     :    1b2    1b2 >    2b2    2b2 :   -0.0960816031
+        0   0 >   0   0     :    1b2    1b2 >    4a1    4a1 :   -0.0840818773
+        2   0 >   0   0     :    3a1    1b2 >    4a1    2b2 :    0.0457258013
+        0   2 >   0   0     :    1b2    3a1 >    2b2    4a1 :    0.0457258013
+        0   0 >   0   0     :    1b1    1b1 >    2b2    2b2 :   -0.0411112313
+
+Symmetry of excited state: A2
+Symmetry of right eigenvector: A2
+Seeking states with multiplicity of 1
+Obtaining initial guess from singles-singles block of Hbar...Done.
+
+Iter=1    L=2     Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.4508366479   4.51e-01    3.59e-01      N
+                     2   1.1670795808   1.17e+00    4.37e-01      N
+Iter=2    L=4     Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.3744760463  -7.64e-02    7.18e-02      N
+                     2   1.0422879754  -1.25e-01    7.57e-02      N
+Iter=3    L=6     Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.3713460715  -3.13e-03    2.06e-02      N
+                     2   1.0395864835  -2.70e-03    3.18e-02      N
+Iter=4    L=8     Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.3712128762  -1.33e-04    5.48e-03      N
+                     2   1.0380541862  -1.53e-03    6.38e-02      N
+Iter=5    L=10    Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.3712071804  -5.70e-06    1.57e-03      N
+                     2   1.0351829865  -2.87e-03    6.09e-02      N
+Iter=6    L=12    Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.3712107714   3.59e-06    4.77e-04      N
+                     2   1.0321963289  -2.99e-03    4.82e-02      N
+Iter=7    L=14    Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.3712109118   1.40e-07    1.50e-04      N
+                     2   1.0301757637  -2.02e-03    7.13e-02      N
+Iter=8    L=16    Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.3712108082  -1.04e-07    2.94e-05      Y
+                     2   0.9913127428  -3.89e-02    3.27e-01      N
+Iter=9    L=17    Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.3712108114   3.14e-09    2.44e-05      Y
+                     2   0.9624650652  -2.88e-02    9.58e-02      N
+Iter=10   L=18    Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.3712108129   1.56e-09    2.38e-05      Y
+                     2   0.9606676377  -1.80e-03    2.44e-02      N
+Iter=11   L=19    Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.3712108067  -6.20e-09    2.15e-05      Y
+                     2   0.9605186628  -1.49e-04    9.00e-03      N
+Iter=12   L=20    Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.3712108097   2.98e-09    2.12e-05      Y
+                     2   0.9605061414  -1.25e-05    4.61e-03      N
+Iter=13   L=21    Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.3712108070  -2.68e-09    2.06e-05      Y
+                     2   0.9605057463  -3.95e-07    1.54e-03      N
+Iter=14   L=22    Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.3712108045  -2.58e-09    2.09e-05      Y
+                     2   0.9605057787   3.24e-08    2.20e-04      N
+Iter=15   L=23    Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.3712108046   1.49e-10    2.02e-05      Y
+                     2   0.9605057297  -4.89e-08    4.62e-05      Y
+Collapsing to only 2 vector(s).
+
+Procedure converged for 2 root(s).
+EOM CCSD R0 for root 0 =   0.00000000000
+EOM CCSD R0 for root 1 =   0.00000000000
+
+Final Energetic Summary for Converged Roots of Irrep A2
+                     Excitation Energy              Total Energy
+                (eV)     (cm^-1)     (au)             (au)
+EOM State 3     10.101    81471.4   0.3712108046   -75.748354042275
+
+Largest components of excited wave function #3:
+ RIA (libdpd indices) : (cscf notation)
+         0 >   0      :       1b1 >    2b2 :   -0.6849789382
+         0 >   1      :       1b1 >    3b2 :   -0.0583418529
+         0 >   2      :       1b1 >    4b2 :   -0.0568631318
+         0 >   0      :       1b2 >    2b1 :    0.0034723299
+ RIjAb (libdpd indices)     : (cscf notation)
+        0   0 >   0   0     :    1b1    1b2 >    2b2    2b2 :   -0.0811048068
+        0   0 >   0   0     :    1b2    1b1 >    2b2    2b2 :   -0.0811048068
+        2   0 >   0   0     :    3a1    1b1 >    4a1    2b2 :    0.0528081500
+        0   2 >   0   0     :    1b1    3a1 >    2b2    4a1 :    0.0528081500
+        0   0 >   0   0     :    1b1    1b1 >    2b1    2b2 :   -0.0451350960
+EOM State 4     26.137   210806.6   0.9605057297   -75.159059117141
+
+Largest components of excited wave function #4:
+ RIA (libdpd indices) : (cscf notation)
+         0 >   2      :       1b1 >    4b2 :    0.0135859795
+         0 >   0      :       1b1 >    2b2 :    0.0099970318
+         0 >   0      :       1b2 >    2b1 :    0.0066574500
+         0 >   1      :       1b1 >    3b2 :    0.0018688547
+ RIjAb (libdpd indices)     : (cscf notation)
+        0   0 >   0   0     :    1b1    1b2 >    4a1    4a1 :   -0.3853402136
+        0   0 >   0   0     :    1b2    1b1 >    4a1    4a1 :   -0.3853402136
+        0   0 >   0   0     :    1b1    1b2 >    2b2    2b2 :    0.2395024701
+        0   0 >   0   0     :    1b2    1b1 >    2b2    2b2 :    0.2395024701
+        2   0 >   0   0     :    3a1    1b1 >    4a1    2b2 :    0.2247644706
+
+Symmetry of excited state: B1
+Symmetry of right eigenvector: B1
+Seeking states with multiplicity of 1
+Obtaining initial guess from singles-singles block of Hbar...Done.
+
+Iter=1    L=2     Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.3792570011   3.79e-01    3.75e-01      N
+                     2   1.1714738073   1.17e+00    2.70e-01      N
+Iter=2    L=4     Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.2935619960  -8.57e-02    7.00e-02      N
+                     2   1.1182743292  -5.32e-02    8.23e-02      N
+Iter=3    L=6     Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.2912091485  -2.35e-03    2.00e-02      N
+                     2   1.1011058171  -1.72e-02    1.06e-01      N
+Iter=4    L=8     Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.2911452815  -6.39e-05    5.36e-03      N
+                     2   1.0812701177  -1.98e-02    9.93e-02      N
+Iter=5    L=10    Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.2911428796  -2.40e-06    1.11e-03      N
+                     2   0.9980954910  -8.32e-02    2.96e-01      N
+Iter=6    L=12    Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.2911457868   2.91e-06    2.91e-04      N
+                     2   0.9502588751  -4.78e-02    1.26e-01      N
+Iter=7    L=14    Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.2911466714   8.85e-07    6.71e-05      Y
+                     2   0.9429823183  -7.28e-03    6.66e-02      N
+Iter=8    L=15    Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.2911467535   8.20e-08    5.83e-05      Y
+                     2   0.9421612882  -8.21e-04    2.05e-02      N
+Iter=9    L=16    Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.2911467788   2.54e-08    5.40e-05      Y
+                     2   0.9420718599  -8.94e-05    6.19e-03      N
+Iter=10   L=17    Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.2911467775  -1.38e-09    5.48e-05      Y
+                     2   0.9420612227  -1.06e-05    2.19e-03      N
+Iter=11   L=18    Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.2911467698  -7.62e-09    5.09e-05      Y
+                     2   0.9420595438  -1.68e-06    8.18e-04      N
+Iter=12   L=19    Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.2911467741   4.25e-09    4.92e-05      Y
+                     2   0.9420594343  -1.09e-07    2.24e-04      N
+Iter=13   L=20    Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.2911467640  -1.01e-08    4.67e-05      Y
+                     2   0.9420596065   1.72e-07    6.16e-05      Y
+Collapsing to only 2 vector(s).
+
+Procedure converged for 2 root(s).
+EOM CCSD R0 for root 0 =   0.00000000000
+EOM CCSD R0 for root 1 =   0.00000000000
+
+Final Energetic Summary for Converged Roots of Irrep B1
+                     Excitation Energy              Total Energy
+                (eV)     (cm^-1)     (au)             (au)
+EOM State 5      7.923    63899.3   0.2911467640   -75.828418082856
+
+Largest components of excited wave function #5:
+ RIA (libdpd indices) : (cscf notation)
+         0 >   0      :       1b1 >    4a1 :   -0.6865963672
+         0 >   1      :       1b1 >    5a1 :   -0.0500431670
+         0 >   3      :       1b1 >    7a1 :   -0.0209986929
+         0 >   2      :       1b1 >    6a1 :    0.0152070954
+         2 >   0      :       3a1 >    2b1 :   -0.0029793610
+ RIjAb (libdpd indices)     : (cscf notation)
+        0   0 >   0   0     :    1b1    1b2 >    4a1    2b2 :   -0.0736849872
+        0   0 >   0   0     :    1b2    1b1 >    2b2    4a1 :   -0.0736849872
+        2   0 >   0   0     :    3a1    1b1 >    4a1    4a1 :    0.0549784237
+        0   2 >   0   0     :    1b1    3a1 >    4a1    4a1 :    0.0549784237
+        0   0 >   0   0     :    1b1    1b1 >    4a1    2b1 :   -0.0494409189
+EOM State 6     25.635   206758.2   0.9420596065   -75.177505240375
+
+Largest components of excited wave function #6:
+ RIA (libdpd indices) : (cscf notation)
+         0 >   1      :       1b1 >    5a1 :   -0.0427940128
+         0 >   0      :       1b1 >    4a1 :   -0.0339702285
+         0 >   3      :       1b1 >    7a1 :   -0.0217404912
+         2 >   0      :       3a1 >    2b1 :    0.0157823205
+         0 >   2      :       1b1 >    6a1 :    0.0109343973
+ RIjAb (libdpd indices)     : (cscf notation)
+        0   2 >   0   0     :    1b1    3a1 >    4a1    4a1 :   -0.5475640395
+        2   0 >   0   0     :    3a1    1b1 >    4a1    4a1 :   -0.5475640395
+        2   0 >   0   0     :    3a1    1b1 >    2b2    2b2 :    0.2726001761
+        0   2 >   0   0     :    1b1    3a1 >    2b2    2b2 :    0.2726001761
+        0   0 >   0   0     :    1b1    1b2 >    2b2    4a1 :    0.1353914891
+
+Symmetry of excited state: B2
+Symmetry of right eigenvector: B2
+Seeking states with multiplicity of 1
+Obtaining initial guess from singles-singles block of Hbar...Done.
+
+Iter=1    L=2     Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.5510364568   5.51e-01    3.54e-01      N
+                     2   0.6033431164   6.03e-01    3.22e-01      N
+Iter=2    L=4     Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.4764436513  -7.46e-02    7.80e-02      N
+                     2   0.5451364542  -5.82e-02    6.11e-02      N
+Iter=3    L=6     Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.4730474661  -3.40e-03    2.75e-02      N
+                     2   0.5430983153  -2.04e-03    2.39e-02      N
+Iter=4    L=8     Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.4727765811  -2.71e-04    6.87e-03      N
+                     2   0.5429226895  -1.76e-04    6.20e-03      N
+Iter=5    L=10    Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.4727549008  -2.17e-05    1.54e-03      N
+                     2   0.5428659248  -5.68e-05    1.77e-03      N
+Iter=6    L=12    Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.4727587068   3.81e-06    3.99e-04      N
+                     2   0.5428634034  -2.52e-06    5.91e-04      N
+Iter=7    L=14    Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.4727594645   7.58e-07    8.20e-05      Y
+                     2   0.5428633879  -1.55e-08    1.79e-04      N
+Iter=8    L=15    Root    EOM Energy     Delta E   Res. Norm    Conv?
+                     1   0.4727594387  -2.58e-08    7.03e-05      Y
+                     2   0.5428630875  -3.00e-07    4.21e-05      Y
+Collapsing to only 2 vector(s).
+
+Procedure converged for 2 root(s).
+Energy written to CC_INFO:Etot  -75.5767017593
+States per irrep written to CC_INFO.
+EOM CCSD R0 for root 0 =   0.00000000000
+EOM CCSD R0 for root 1 =   0.00000000000
+
+Final Energetic Summary for Converged Roots of Irrep B2
+                     Excitation Energy              Total Energy
+                (eV)     (cm^-1)     (au)             (au)
+EOM State 7     12.864   103758.7   0.4727594387   -75.646805408169
+
+Largest components of excited wave function #7:
+ RIA (libdpd indices) : (cscf notation)
+         2 >   0      :       3a1 >    2b2 :    0.6747478496
+         0 >   0      :       1b2 >    4a1 :    0.1214381550
+         2 >   2      :       3a1 >    4b2 :    0.0505297168
+         2 >   1      :       3a1 >    3b2 :    0.0306437089
+         0 >   1      :       1b2 >    5a1 :    0.0299665372
+ RIjAb (libdpd indices)     : (cscf notation)
+        2   2 >   0   0     :    3a1    3a1 >    4a1    2b2 :   -0.0896598772
+        2   2 >   0   0     :    3a1    3a1 >    2b2    4a1 :   -0.0896598772
+        2   0 >   0   0     :    3a1    1b2 >    2b2    2b2 :    0.0650382958
+        0   2 >   0   0     :    1b2    3a1 >    2b2    2b2 :    0.0650382958
+        2   2 >   1   0     :    3a1    3a1 >    5a1    2b2 :   -0.0343890033
+EOM State 8     14.772   119144.7   0.5428630875   -75.576701759343
+
+Largest components of excited wave function #8:
+ RIA (libdpd indices) : (cscf notation)
+         0 >   0      :       1b2 >    4a1 :    0.6811978584
+         2 >   0      :       3a1 >    2b2 :   -0.1214053251
+         0 >   1      :       1b2 >    5a1 :    0.0259004048
+         2 >   1      :       3a1 >    3b2 :    0.0224718863
+         0 >   2      :       1b2 >    6a1 :   -0.0217936518
+ RIjAb (libdpd indices)     : (cscf notation)
+        0   0 >   0   0     :    1b2    1b2 >    4a1    2b2 :    0.0869477158
+        0   0 >   0   0     :    1b2    1b2 >    2b2    4a1 :    0.0869477158
+        2   0 >   0   0     :    3a1    1b2 >    2b2    2b2 :   -0.0445814499
+        0   2 >   0   0     :    1b2    3a1 >    2b2    2b2 :   -0.0445814499
+        2   0 >   0   0     :    3a1    1b2 >    4a1    4a1 :   -0.0255595959
+
+	Putting into environment energy for root of R irrep 4 and root 2.
+	Putting into environment CURRENT ENERGY:              -75.5767017593
+
+	Total # of sigma evaluations: 75
+
+			**************************
+			*        CCLAMBDA        *
+			**************************
+
+
+	Nuclear Rep. energy (wfn)     =    8.801465564567374
+	Reference           (wfn)     =                    0
+	SCF energy          (wfn)     =  -75.980157921934349
+	Reference energy    (CC_INFO) =  -75.980157921934349
+	CCSD energy         (CC_INFO) =   -0.139406924949526
+	Total CCSD energy   (CC_INFO) =  -76.119564846883875
+
+	Input parameters:
+	-----------------
+	Maxiter           =     50
+	Convergence       = 1.0e-04
+	Restart           =     No
+	Cache Level       =     2
+	Model III         =     No
+	DIIS              =     Yes
+	AO Basis          =     No
+	ABCD              =     NEW
+	Local CC          =     No
+	Parameters for left-handed eigenvectors:
+	    Irr   Root  Ground-State?    EOM energy        R0
+	  1   0     0        Yes       0.0000000000   1.0000000000
+	  2   0     1         No       0.3879112372   0.0206538795
+	  3   0     2         No       0.6750818722  -0.0190380245
+	  4   1     1         No       0.3712108046   0.0000000000
+	  5   1     2         No       0.9605057297   0.0000000000
+	  6   2     1         No       0.2911467640   0.0000000000
+	  7   2     2         No       0.9420596065   0.0000000000
+	  8   3     1         No       0.4727594387   0.0000000000
+	  9   3     2         No       0.5428630875   0.0000000000
+	Labels for eigenvector 1:
+	LIA 0 -1, Lia 0 -1, LIJAB 0 -1, Lijab 0 -1, LIjAb 0 -1, 2LIjAb - LIjbA 0 -1
+	Labels for eigenvector 2:
+	LIA 0 0, Lia 0 0, LIJAB 0 0, Lijab 0 0, LIjAb 0 0, 2LIjAb - LIjbA 0 0
+	Labels for eigenvector 3:
+	LIA 0 1, Lia 0 1, LIJAB 0 1, Lijab 0 1, LIjAb 0 1, 2LIjAb - LIjbA 0 1
+	Labels for eigenvector 4:
+	LIA 1 0, Lia 1 0, LIJAB 1 0, Lijab 1 0, LIjAb 1 0, 2LIjAb - LIjbA 1 0
+	Labels for eigenvector 5:
+	LIA 1 1, Lia 1 1, LIJAB 1 1, Lijab 1 1, LIjAb 1 1, 2LIjAb - LIjbA 1 1
+	Labels for eigenvector 6:
+	LIA 2 0, Lia 2 0, LIJAB 2 0, Lijab 2 0, LIjAb 2 0, 2LIjAb - LIjbA 2 0
+	Labels for eigenvector 7:
+	LIA 2 1, Lia 2 1, LIJAB 2 1, Lijab 2 1, LIjAb 2 1, 2LIjAb - LIjbA 2 1
+	Labels for eigenvector 8:
+	LIA 3 0, Lia 3 0, LIJAB 3 0, Lijab 3 0, LIjAb 3 0, 2LIjAb - LIjbA 3 0
+	Labels for eigenvector 9:
+	LIA 3 1, Lia 3 1, LIJAB 3 1, Lijab 3 1, LIjAb 3 1, 2LIjAb - LIjbA 3 1
+	Deleting old CC_LAMBDA data.
+	Symmetry of left-hand state: A1
+	Symmetry of left-hand eigenvector: A1
+
+	          Solving Lambda Equations
+	          ------------------------
+	Iter     PseudoEnergy or Norm         RMS  
+	----     ---------------------     --------
+	   0        -0.139431957944084    0.000e+00
+	   1        -0.139281601738489    7.659e-03
+	   2        -0.139034244094774    1.051e-03
+	   3        -0.138979698256148    2.770e-04
+	   4        -0.138967951939854    6.777e-05
+
+	Largest LIA Amplitudes:
+	          2   0         0.0093920699
+	          4   7         0.0090026773
+	          2   3        -0.0058062066
+	          4   5        -0.0048468120
+	          1   2        -0.0043570326
+	          3   4        -0.0042950819
+	          4   6        -0.0032496656
+	          1   0        -0.0022448909
+	          2   2         0.0019612043
+	          1   3         0.0016242620
+
+	Largest LIjAb Amplitudes:
+	  3   3   4   4        -0.0535744558
+	  4   4   5   5        -0.0469484710
+	  2   2   2   2        -0.0396884592
+	  2   3   2   4        -0.0310720919
+	  3   2   4   2        -0.0310720919
+	  4   4   6   6        -0.0278758115
+	  3   4   4   7        -0.0260306506
+	  4   3   7   4        -0.0260306506
+	  2   2   0   0        -0.0260019852
+	  2   4   0   5         0.0258554218
+
+	Iterations converged.
+
+	Overlap <L|e^T> =        0.95214891671
+	Symmetry of left-hand state: A1
+	Symmetry of left-hand eigenvector: A1
+	Initial overlap of initial guess <L|R> =    0.9990574191
+	Checking overlap of initial guess <L|R> =    1.0000000000
+
+	          Solving Lambda Equations
+	          ------------------------
+	Iter     PseudoEnergy or Norm         RMS  
+	----     ---------------------     --------
+	   0         0.005968024725402    6.777e-05
+	   1         0.008453505550160    3.230e-02
+	   2         0.008243451728628    6.941e-03
+	   3         0.008352615043612    2.167e-03
+	   4         0.008356706696982    6.567e-04
+	   5         0.008348308702023    1.612e-04
+	   6         0.008344798255567    5.418e-05
+
+	Initial  <L|R>  =        0.9851587421
+	Normalizing L...
+	L0 * R0 =        0.0000000000
+	L1 * R1 =        0.9431006185
+	L2 * R2 =        0.0568993815
+	 <L|R>  =        1.0000000000
+	Pseudoenergy or Norm of normalized L =    0.008470511298014
+
+	Largest LIA Amplitudes:
+	          2   0        -0.6779350619
+	          4   5        -0.0740803023
+	          2   1        -0.0323710615
+	          1   0        -0.0322183760
+	          3   4        -0.0285866747
+	          2   3        -0.0203081328
+	          4   6        -0.0193853303
+	          4   7        -0.0179147072
+	          2   2        -0.0114216500
+	          1   1        -0.0093466936
+
+	Largest LIjAb Amplitudes:
+	  2   2   0   0         0.1130238238
+	  2   4   0   5        -0.0747452294
+	  4   2   5   0        -0.0747452294
+	  2   2   0   2        -0.0463024305
+	  2   2   2   0        -0.0463024305
+	  2   2   5   5         0.0457199442
+	  2   3   0   4        -0.0387712203
+	  3   2   4   0        -0.0387712203
+	  2   4   5   0        -0.0352031813
+	  4   2   0   5        -0.0352031813
+
+	Iterations converged.
+
+	Symmetry of left-hand state: A1
+	Symmetry of left-hand eigenvector: A1
+	Initial overlap of initial guess <L|R> =    0.9991987025
+	Checking overlap of initial guess <L|R> =    1.0000000000
+
+	          Solving Lambda Equations
+	          ------------------------
+	Iter     PseudoEnergy or Norm         RMS  
+	----     ---------------------     --------
+	   0        -0.012146948080244    5.418e-05
+	   1        -0.015140718639131    2.496e-02
+	   2        -0.014892998542564    6.616e-03
+	   3        -0.015083176497626    2.873e-03
+	   4        -0.015102206221685    1.482e-03
+	   5        -0.015100980617457    6.365e-04
+	   6        -0.015090627460065    3.083e-04
+	   7        -0.015095188596450    1.042e-04
+	   8        -0.015097874186700    3.826e-05
+
+	Initial  <L|R>  =        0.9918651396
+	Normalizing L...
+	L0 * R0 =       -0.0000000000
+	L1 * R1 =        0.9535016209
+	L2 * R2 =        0.0464983791
+	 <L|R>  =        1.0000000000
+	Pseudoenergy or Norm of normalized L =   -0.015221700596442
+
+	Largest LIA Amplitudes:
+	          4   5        -0.6762960264
+	          3   4         0.0885255788
+	          2   0         0.0649610481
+	          2   2         0.0588761098
+	          2   1        -0.0423695944
+	          1   3         0.0201499706
+	          1   0         0.0182450719
+	          1   1         0.0132470954
+	          4   7        -0.0123503780
+	          4   6        -0.0085492778
+
+	Largest LIjAb Amplitudes:
+	  4   4   5   5        -0.1015995311
+	  4   4   0   0        -0.0803368873
+	  2   4   0   5         0.0487976322
+	  4   2   5   0         0.0487976322
+	  3   3   5   5        -0.0363107747
+	  4   4   7   7         0.0338712714
+	  4   4   0   1        -0.0299742987
+	  4   4   1   0        -0.0299742987
+	  2   4   5   0         0.0281865109
+	  4   2   0   5         0.0281865109
+
+	Iterations converged.
+
+	Symmetry of left-hand state: A2
+	Symmetry of left-hand eigenvector: A2
+	Initial overlap of initial guess <L|R> =    1.0000000000
+	Checking overlap of initial guess <L|R> =    1.0000000000
+
+	          Solving Lambda Equations
+	          ------------------------
+	Iter     PseudoEnergy or Norm         RMS  
+	----     ---------------------     --------
+	   0         1.000000000000000    3.826e-05
+	   1         0.984903477428671    2.939e-02
+	   2         0.986958121120386    6.930e-03
+	   3         0.987630616546249    2.608e-03
+	   4         0.987838803543220    5.947e-04
+	   5         0.987868614829064    1.368e-04
+	   6         0.987869467069675    2.616e-05
+
+	Initial  <L|R>  =        0.9871836151
+	Normalizing L...
+	L0 * R0 =        0.0000000000
+	L1 * R1 =        0.9474518730
+	L2 * R2 =        0.0525481270
+	 <L|R>  =        1.0000000000
+	Pseudoenergy or Norm of normalized L =    1.000694756276522
+
+	Largest LIA Amplitudes:
+	          3   5        -0.6822165538
+	          3   6        -0.0566106549
+	          3   7        -0.0546496363
+	          4   4         0.0033539159
+
+	Largest LIjAb Amplitudes:
+	  3   4   5   5        -0.0861557374
+	  4   3   5   5        -0.0861557374
+	  2   3   0   5         0.0567038853
+	  3   2   5   0         0.0567038853
+	  3   3   4   5        -0.0500297678
+	  3   3   5   4        -0.0500297678
+	  1   3   0   5        -0.0368287903
+	  3   1   5   0        -0.0368287903
+	  3   4   0   0        -0.0326879821
+	  4   3   0   0        -0.0326879821
+
+	Iterations converged.
+
+	Symmetry of left-hand state: A2
+	Symmetry of left-hand eigenvector: A2
+	Initial overlap of initial guess <L|R> =    1.0000000000
+	Checking overlap of initial guess <L|R> =    1.0000000000
+
+	          Solving Lambda Equations
+	          ------------------------
+	Iter     PseudoEnergy or Norm         RMS  
+	----     ---------------------     --------
+	   0         1.000000000000156    2.616e-05
+	   1         1.000630797993208    8.666e-03
+	   2         1.000580395898430    3.541e-03
+	   3         1.000943156486783    2.509e-03
+	   4         1.001077980268675    1.788e-03
+	   5         1.001347726947808    1.567e-03
+	   6         1.001738831339595    1.153e-03
+	   7         1.002072361102271    6.397e-04
+	   8         1.002195803504689    2.928e-04
+	   9         1.002101880207823    1.702e-04
+	  10         1.002090661272583    9.398e-05
+
+	Initial  <L|R>  =        1.0016662978
+	Normalizing L...
+	L0 * R0 =        0.0000000000
+	L1 * R1 =        0.0003457155
+	L2 * R2 =        0.9996542845
+	 <L|R>  =        1.0000000000
+	Pseudoenergy or Norm of normalized L =    1.000423657537268
+
+	Largest LIA Amplitudes:
+	          3   6        -0.0097822543
+	          3   5         0.0088828865
+	          4   4         0.0056352607
+	          3   7         0.0047711260
+
+	Largest LIjAb Amplitudes:
+	  3   4   0   0        -0.3940420155
+	  4   3   0   0        -0.3940419992
+	  3   4   5   5         0.2391036945
+	  4   3   5   5         0.2391036941
+	  2   3   0   5         0.2263336657
+	  3   2   5   0         0.2263336601
+	  3   2   0   5        -0.1635006993
+	  2   3   5   0        -0.1635006940
+	  3   4   1   0        -0.0911894762
+	  4   3   0   1        -0.0911894761
+
+	Iterations converged.
+
+	Symmetry of left-hand state: B1
+	Symmetry of left-hand eigenvector: B1
+	Initial overlap of initial guess <L|R> =    1.0000000000
+	Checking overlap of initial guess <L|R> =    1.0000000000
+
+	          Solving Lambda Equations
+	          ------------------------
+	Iter     PseudoEnergy or Norm         RMS  
+	----     ---------------------     --------
+	   0         1.000000000000000    9.398e-05
+	   1         0.981564598013522    3.389e-02
+	   2         0.983684103378816    6.831e-03
+	   3         0.984169181366340    2.436e-03
+	   4         0.984339651186708    4.929e-04
+	   5         0.984354430773931    9.684e-05
+
+	Initial  <L|R>  =        0.9835057723
+	Normalizing L...
+	L0 * R0 =        0.0000000000
+	L1 * R1 =        0.9436223835
+	L2 * R2 =        0.0563776165
+	 <L|R>  =        1.0000000000
+	Pseudoenergy or Norm of normalized L =    1.000862891193089
+
+	Largest LIA Amplitudes:
+	          3   0        -0.6827422764
+	          3   1        -0.0476672146
+	          3   3        -0.0202512041
+	          3   2         0.0145786218
+	          2   4        -0.0031303155
+	          1   4        -0.0010329878
+	          0   4        -0.0003565169
+
+	Largest LIjAb Amplitudes:
+	  3   4   0   5        -0.0833050580
+	  4   3   5   0        -0.0833050580
+	  2   3   0   0         0.0581637801
+	  3   2   0   0         0.0581637801
+	  3   3   0   4        -0.0546335297
+	  3   3   4   0        -0.0546335297
+	  1   3   0   0        -0.0500452098
+	  3   1   0   0        -0.0500452098
+	  3   4   5   0        -0.0422126828
+	  4   3   0   5        -0.0422126828
+
+	Iterations converged.
+
+	Symmetry of left-hand state: B1
+	Symmetry of left-hand eigenvector: B1
+	Initial overlap of initial guess <L|R> =    1.0000000000
+	Checking overlap of initial guess <L|R> =    1.0000000000
+
+	          Solving Lambda Equations
+	          ------------------------
+	Iter     PseudoEnergy or Norm         RMS  
+	----     ---------------------     --------
+	   0         0.999999999999952    9.684e-05
+	   1         1.000376904665707    5.709e-03
+	   2         1.000293324561469    3.112e-03
+	   3         1.000186243886437    2.020e-03
+	   4         0.999960629596374    1.122e-03
+	   5         0.999760270455458    6.150e-04
+	   6         0.999633752929887    3.321e-04
+	   7         0.999612945877280    1.335e-04
+	   8         0.999611874267818    5.774e-05
+
+	Initial  <L|R>  =        0.9993565714
+	Normalizing L...
+	L0 * R0 =        0.0000000000
+	L1 * R1 =        0.0068018673
+	L2 * R2 =        0.9931981327
+	 <L|R>  =        1.0000000000
+	Pseudoenergy or Norm of normalized L =    1.000255467286273
+
+	Largest LIA Amplitudes:
+	          3   0        -0.0360262123
+	          3   1        -0.0342668596
+	          3   3        -0.0207857934
+	          2   4         0.0113453677
+	          3   2         0.0072340808
+	          1   4         0.0006829432
+	          0   4        -0.0000424644
+
+	Largest LIjAb Amplitudes:
+	  3   2   0   0        -0.5460647211
+	  2   3   0   0        -0.5460647205
+	  2   3   5   5         0.2688165840
+	  3   2   5   5         0.2688165839
+	  3   4   5   0         0.1406137187
+	  4   3   0   5         0.1406137187
+	  3   2   1   0        -0.1152578395
+	  2   3   0   1        -0.1152578395
+	  3   1   0   0         0.1024701116
+	  1   3   0   0         0.1024701116
+
+	Iterations converged.
+
+	Symmetry of left-hand state: B2
+	Symmetry of left-hand eigenvector: B2
+	Initial overlap of initial guess <L|R> =    1.0000000000
+	Checking overlap of initial guess <L|R> =    1.0000000000
+
+	          Solving Lambda Equations
+	          ------------------------
+	Iter     PseudoEnergy or Norm         RMS  
+	----     ---------------------     --------
+	   0         1.000000000000000    5.774e-05
+	   1         0.985909237642091    2.715e-02
+	   2         0.987971382773962    6.661e-03
+	   3         0.988583992102082    2.256e-03
+	   4         0.988840089289916    6.308e-04
+	   5         0.988879611763700    1.473e-04
+	   6         0.988880842551327    4.004e-05
+
+	Initial  <L|R>  =        0.9883187409
+	Normalizing L...
+	L0 * R0 =        0.0000000000
+	L1 * R1 =        0.9459174016
+	L2 * R2 =        0.0540825984
+	 <L|R>  =        1.0000000000
+	Pseudoenergy or Norm of normalized L =    1.000568745299122
+
+	Largest LIA Amplitudes:
+	          2   5         0.6728471378
+	          4   0         0.1207307351
+	          2   7         0.0481347501
+	          2   6         0.0296104610
+	          4   1         0.0294307325
+	          1   5         0.0079490536
+	          1   6         0.0031434816
+	          4   2        -0.0016094963
+	          0   7         0.0007552543
+	          1   7         0.0005973578
+
+	Largest LIjAb Amplitudes:
+	  2   2   0   5        -0.0879867959
+	  2   2   5   0        -0.0879867959
+	  2   4   5   5         0.0678006260
+	  4   2   5   5         0.0678006260
+	  2   2   2   5         0.0375733913
+	  2   2   5   2         0.0375733913
+	  2   2   1   5        -0.0363876053
+	  2   2   5   1        -0.0363876053
+	  2   3   5   4         0.0339913701
+	  3   2   4   5         0.0339913701
+
+	Iterations converged.
+
+	Symmetry of left-hand state: B2
+	Symmetry of left-hand eigenvector: B2
+	Initial overlap of initial guess <L|R> =    1.0000000000
+	Checking overlap of initial guess <L|R> =    1.0000000000
+
+	          Solving Lambda Equations
+	          ------------------------
+	Iter     PseudoEnergy or Norm         RMS  
+	----     ---------------------     --------
+	   0         1.000000000000000    4.004e-05
+	   1         0.989791875493416    2.237e-02
+	   2         0.990722225344512    5.033e-03
+	   3         0.990972490909801    1.862e-03
+	   4         0.991070138741965    5.241e-04
+	   5         0.991056613890742    1.438e-04
+	   6         0.991052171377742    5.100e-05
+
+	Initial  <L|R>  =        0.9905823449
+	Normalizing L...
+	L0 * R0 =        0.0000000000
+	L1 * R1 =        0.9605148867
+	L2 * R2 =        0.0394851133
+	 <L|R>  =        1.0000000000
+	Pseudoenergy or Norm of normalized L =    1.000474293169117
+
+	Largest LIA Amplitudes:
+	          4   0         0.6797730362
+	          2   5        -0.1222604354
+	          4   1         0.0238070192
+	          2   6         0.0218272846
+	          4   2        -0.0201102491
+	          4   3         0.0194468019
+	          1   5         0.0151108125
+	          1   6        -0.0114512046
+	          2   7        -0.0058484223
+	          1   7        -0.0021355386
+
+	Largest LIjAb Amplitudes:
+	  4   4   0   5         0.0886933296
+	  4   4   5   0         0.0886933296
+	  2   4   5   5        -0.0438234139
+	  4   2   5   5        -0.0438234139
+	  3   4   4   0         0.0306094355
+	  4   3   0   4         0.0306094355
+	  2   4   2   0         0.0296440000
+	  4   2   0   2         0.0296440000
+	  4   4   0   7         0.0270673381
+	  4   4   7   0         0.0270673381
+
+	Iterations converged.
+
+	<L|R> overlap matrix with ROHF quantities (-99 => 0 by symmetry)
+
+                 1            2            3            4            5            6            7            8            9
+
+    1    1.0000000    0.0000000   -0.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000
+    2    0.0000000    1.0000000   -0.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000
+    3    0.0000000    0.0000001    1.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000
+    4  -99.0000000  -99.0000000  -99.0000000    1.0000000   -0.0000001  -99.0000000  -99.0000000  -99.0000000  -99.0000000
+    5  -99.0000000  -99.0000000  -99.0000000   -0.0000012    1.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000
+    6  -99.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000    1.0000000   -0.0000003  -99.0000000  -99.0000000
+    7  -99.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000   -0.0000005    1.0000000  -99.0000000  -99.0000000
+    8  -99.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000    1.0000000    0.0000000
+    9  -99.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000   -0.0000000    1.0000000
+
+
+	<L|R> overlap matrix with RHF quantities (-99 => 0 by symmetry)
+
+                 1            2            3            4            5            6            7            8            9
+
+    1    1.0000000   -0.0000000    0.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000
+    2    0.0000000    1.0000000    0.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000
+    3    0.0000000   -0.0000000    1.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000
+    4  -99.0000000  -99.0000000  -99.0000000    1.0000000   -0.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000
+    5  -99.0000000  -99.0000000  -99.0000000    0.0000000    1.0000031  -99.0000000  -99.0000000  -99.0000000  -99.0000000
+    6  -99.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000    1.0000001    0.0000000  -99.0000000  -99.0000000
+    7  -99.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000   -0.0000000    1.0000011  -99.0000000  -99.0000000
+    8  -99.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000    1.0000000   -0.0000000
+    9  -99.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000  -99.0000000    0.0000000    1.0000000
+
+
+
+	Projections for excited state, irrep A1, root 0:
+	<0|Le^(-T)|0><0|Re^T|0>  =    0.0005202670
+	<0|Le^(-T)|S><S|Re^T|0>  =    0.9457838669
+	<0|Le^(-T)|D><D|Re^T|0>  =    0.0536958671
+	Sum of above             =    1.0000000010
+	Approx. excitation level =    1.0531756012
+
+	Projections for excited state, irrep A1, root 1:
+	<0|Le^(-T)|0><0|Re^T|0>  =    0.0004512389
+	<0|Le^(-T)|S><S|Re^T|0>  =    0.9558804008
+	<0|Le^(-T)|D><D|Re^T|0>  =    0.0436683522
+	Sum of above             =    0.9999999920
+	Approx. excitation level =    1.0432171053
+
+	Projections for excited state, irrep A2, root 0:
+	<0|Le^(-T)|0><0|Re^T|0>  =   -0.0000000000
+	<0|Le^(-T)|S><S|Re^T|0>  =    0.9494983530
+	<0|Le^(-T)|D><D|Re^T|0>  =    0.0505016495
+	Sum of above             =    1.0000000025
+	Approx. excitation level =    1.0505016520
+
+	Projections for excited state, irrep A2, root 1:
+	<0|Le^(-T)|0><0|Re^T|0>  =   -0.0000000000
+	<0|Le^(-T)|S><S|Re^T|0>  =    0.0001791351
+	<0|Le^(-T)|D><D|Re^T|0>  =    0.9998239516
+	Sum of above             =    1.0000030866
+	Approx. excitation level =    1.9998270382
+
+	Projections for excited state, irrep B1, root 0:
+	<0|Le^(-T)|0><0|Re^T|0>  =   -0.0000000000
+	<0|Le^(-T)|S><S|Re^T|0>  =    0.9457661631
+	<0|Le^(-T)|D><D|Re^T|0>  =    0.0542338885
+	Sum of above             =    1.0000000516
+	Approx. excitation level =    1.0542339401
+
+	Projections for excited state, irrep B1, root 1:
+	<0|Le^(-T)|0><0|Re^T|0>  =   -0.0000000000
+	<0|Le^(-T)|S><S|Re^T|0>  =    0.0062701144
+	<0|Le^(-T)|D><D|Re^T|0>  =    0.9937309833
+	Sum of above             =    1.0000010976
+	Approx. excitation level =    1.9937320809
+
+	Projections for excited state, irrep B2, root 0:
+	<0|Le^(-T)|0><0|Re^T|0>  =   -0.0000000000
+	<0|Le^(-T)|S><S|Re^T|0>  =    0.9481853843
+	<0|Le^(-T)|D><D|Re^T|0>  =    0.0518146151
+	Sum of above             =    0.9999999994
+	Approx. excitation level =    1.0518146145
+
+	Projections for excited state, irrep B2, root 1:
+	<0|Le^(-T)|0><0|Re^T|0>  =   -0.0000000000
+	<0|Le^(-T)|S><S|Re^T|0>  =    0.9619655033
+	<0|Le^(-T)|D><D|Re^T|0>  =    0.0380345011
+	Sum of above             =    1.0000000044
+	Approx. excitation level =    1.0380345054
+
+			**************************
+			*                        *
+			*        CCDENSITY       *
+			*                        *
+			**************************
+
+
+	Input parameters:
+	-----------------
+	Wave function    = EOM_CCSD
+	Reference wfn    =   RHF
+	Dertype          = 0
+	Tolerance        = 1.0e-14
+	Cache Level      = 2
+	AO Basis         = No
+	OPDM Only        = Yes
+	Relax OPDM       = No
+	Compute Xi       = No
+	Use Zeta         = No
+	Xi connected     = No
+	Compute NO       = No
+
+	Nuclear Rep. energy (wfn)     =    8.801465564567374
+	SCF energy          (wfn)     =  -75.980157921934349
+	Reference energy    (file100) =  -75.980157921934349
+	CCSD energy         (CC_INFO) =   -0.139406924949526
+	Total CCSD energy   (CC_INFO) =  -76.119564846883875
+	Number of States = 9
+
+	Ground?  State     EOM Energy       R0
+	  Yes     0 A1    0.0000000000   1.00000000
+	   No     1 A1    0.3879112372   0.02065388
+	   No     2 A1    0.6750818722  -0.01903802
+	   No     1 A2    0.3712108046   0.00000000
+	   No     2 A2    0.9605057297   0.00000000
+	   No     1 B1    0.2911467640   0.00000000
+	   No     2 B1    0.9420596065   0.00000000
+	   No     1 B2    0.4727594387   0.00000000
+	   No     2 B2    0.5428630875   0.00000000
+Doing transition
+
+	Oscillator Strength for 1 A1
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	  0.00000000 	  0.66570299
+	<n|mu_e|0>               0.00000000 	  0.00000000 	  0.68343339
+	Dipole Strength          0.45496365 
+	Oscillator Strength      0.11765701 
+	Einstein A Coefficient   5.68844298e+08 
+	Einstein B Coefficient   5.53538025e+19 
+Doing transition
+
+	Length-Gauge Rotational Strength for 1 A1
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	  0.00000000 	  0.66570299
+	<n|mu_m|0>               0.00000000 	  0.00000000 	  0.00000000
+	<0|mu_m|n>*              0.00000000 	  0.00000000 	  0.00000000
+	<n|mu_e|0>*              0.00000000 	  0.00000000 	  0.68343339
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 1 A1
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	  0.00000000 	  0.31781642
+	<n|mu_m|0>               0.00000000 	  0.00000000 	  0.00000000
+	<0|mu_m|n>*              0.00000000 	  0.00000000 	  0.00000000
+	<n|mu_e|0>*              0.00000000 	  0.00000000 	  0.32248795
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+Doing transition
+Doing transition
+
+	Oscillator Strength for 2 A1
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	  0.00000000 	 -0.77759836
+	<n|mu_e|0>               0.00000000 	  0.00000000 	 -0.79624640
+	Dipole Strength          0.61915990 
+	Oscillator Strength      0.27865575 
+	Einstein A Coefficient   4.08029704e+09 
+	Einstein B Coefficient   7.53309728e+19 
+Doing transition
+
+	Length-Gauge Rotational Strength for 2 A1
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	  0.00000000 	 -0.77759836
+	<n|mu_m|0>               0.00000000 	  0.00000000 	  0.00000000
+	<0|mu_m|n>*              0.00000000 	  0.00000000 	  0.00000000
+	<n|mu_e|0>*              0.00000000 	  0.00000000 	 -0.79624640
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 2 A1
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	  0.00000000 	 -0.46054373
+	<n|mu_m|0>               0.00000000 	  0.00000000 	  0.00000000
+	<0|mu_m|n>*              0.00000000 	  0.00000000 	  0.00000000
+	<n|mu_e|0>*              0.00000000 	  0.00000000 	 -0.46929531
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+Doing transition
+Doing transition
+
+	Oscillator Strength for 1 A2
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	  0.00000000 	  0.00000000
+	<n|mu_e|0>               0.00000000 	  0.00000000 	  0.00000000
+	Dipole Strength          0.00000000 
+	Oscillator Strength      0.00000000 
+	Einstein A Coefficient   0.00000000e+00 
+	Einstein B Coefficient   0.00000000e+00 
+Doing transition
+
+	Length-Gauge Rotational Strength for 1 A2
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	  0.00000000 	  0.00000000
+	<n|mu_m|0>               0.00000000 	  0.00000000 	  0.19039884
+	<0|mu_m|n>*              0.00000000 	  0.00000000 	  0.18565638
+	<n|mu_e|0>*              0.00000000 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 1 A2
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	  0.00000000 	  0.00000000
+	<n|mu_m|0>               0.00000000 	  0.00000000 	  0.19039884
+	<0|mu_m|n>*              0.00000000 	  0.00000000 	  0.18565638
+	<n|mu_e|0>*              0.00000000 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+Doing transition
+Doing transition
+
+	Oscillator Strength for 2 A2
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	  0.00000000 	  0.00000000
+	<n|mu_e|0>               0.00000000 	  0.00000000 	  0.00000000
+	Dipole Strength          0.00000000 
+	Oscillator Strength      0.00000000 
+	Einstein A Coefficient   0.00000000e+00 
+	Einstein B Coefficient   0.00000000e+00 
+Doing transition
+
+	Length-Gauge Rotational Strength for 2 A2
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	  0.00000000 	  0.00000000
+	<n|mu_m|0>               0.00000000 	  0.00000000 	 -0.00084067
+	<0|mu_m|n>*              0.00000000 	  0.00000000 	 -0.00629757
+	<n|mu_e|0>*              0.00000000 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 2 A2
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	  0.00000000 	  0.00000000
+	<n|mu_m|0>               0.00000000 	  0.00000000 	 -0.00084067
+	<0|mu_m|n>*              0.00000000 	  0.00000000 	 -0.00629757
+	<n|mu_e|0>*              0.00000000 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+Doing transition
+Doing transition
+
+	Oscillator Strength for 1 B1
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.22673078 	  0.00000000 	  0.00000000
+	<n|mu_e|0>               0.23178447 	  0.00000000 	  0.00000000
+	Dipole Strength          0.05255267 
+	Oscillator Strength      0.01020036 
+	Einstein A Coefficient   2.77811574e+07 
+	Einstein B Coefficient   6.39389598e+18 
+Doing transition
+
+	Length-Gauge Rotational Strength for 1 B1
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.22673078 	  0.00000000 	  0.00000000
+	<n|mu_m|0>               0.00000000 	  0.13977760 	  0.00000000
+	<0|mu_m|n>*              0.00000000 	  0.13553081 	  0.00000000
+	<n|mu_e|0>*              0.23178447 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 1 B1
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.13423419 	  0.00000000 	  0.00000000
+	<n|mu_m|0>               0.00000000 	  0.13977760 	  0.00000000
+	<0|mu_m|n>*              0.00000000 	  0.13553081 	  0.00000000
+	<n|mu_e|0>*              0.13713591 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+Doing transition
+Doing transition
+
+	Oscillator Strength for 2 B1
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.01280737 	  0.00000000 	  0.00000000
+	<n|mu_e|0>               0.01738137 	  0.00000000 	  0.00000000
+	Dipole Strength          0.00022261 
+	Oscillator Strength      0.00013981 
+	Einstein A Coefficient   3.98656352e+06 
+	Einstein B Coefficient   2.70841165e+16 
+Doing transition
+
+	Length-Gauge Rotational Strength for 2 B1
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.01280737 	  0.00000000 	  0.00000000
+	<n|mu_m|0>               0.00000000 	  0.00840834 	  0.00000000
+	<0|mu_m|n>*              0.00000000 	  0.01065898 	  0.00000000
+	<n|mu_e|0>*              0.01738137 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 2 B1
+	                              X    	       Y    	       Z
+	<0|mu_e|n>              -0.00056893 	  0.00000000 	  0.00000000
+	<n|mu_m|0>               0.00000000 	  0.00840834 	  0.00000000
+	<0|mu_m|n>*              0.00000000 	  0.01065898 	  0.00000000
+	<n|mu_e|0>*              0.00207820 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+Doing transition
+Doing transition
+
+	Oscillator Strength for 1 B2
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	  0.58224837 	  0.00000000
+	<n|mu_e|0>               0.00000000 	  0.60384466 	  0.00000000
+	Dipole Strength          0.35158757 
+	Oscillator Strength      0.11081089 
+	Einstein A Coefficient   7.95744713e+08 
+	Einstein B Coefficient   4.27764037e+19 
+Doing transition
+
+	Length-Gauge Rotational Strength for 1 B2
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	  0.58224837 	  0.00000000
+	<n|mu_m|0>               0.21186108 	  0.00000000 	  0.00000000
+	<0|mu_m|n>*              0.20549165 	  0.00000000 	  0.00000000
+	<n|mu_e|0>*              0.00000000 	  0.60384466 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 1 B2
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	  0.28343650 	  0.00000000
+	<n|mu_m|0>               0.21186108 	  0.00000000 	  0.00000000
+	<0|mu_m|n>*              0.20549165 	  0.00000000 	  0.00000000
+	<n|mu_e|0>*              0.00000000 	  0.29079556 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+Doing transition
+Doing transition
+
+	Oscillator Strength for 2 B2
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	 -1.13139822 	  0.00000000
+	<n|mu_e|0>               0.00000000 	 -1.16685359 	  0.00000000
+	Dipole Strength          1.32017607 
+	Oscillator Strength      0.47778324 
+	Einstein A Coefficient   4.52399815e+09 
+	Einstein B Coefficient   1.60621107e+20 
+Doing transition
+
+	Length-Gauge Rotational Strength for 2 B2
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	 -1.13139822 	  0.00000000
+	<n|mu_m|0>               0.07236260 	  0.00000000 	  0.00000000
+	<0|mu_m|n>*              0.06918800 	  0.00000000 	  0.00000000
+	<n|mu_e|0>*              0.00000000 	 -1.16685359 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 2 B2
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	 -0.56464938 	  0.00000000
+	<n|mu_m|0>               0.07236260 	  0.00000000 	  0.00000000
+	<0|mu_m|n>*              0.06918800 	  0.00000000 	  0.00000000
+	<n|mu_e|0>*              0.00000000 	 -0.57884174 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+Doing transition
+Doing transition
+
+	                   Ground State -> Excited State Transitions
+
+	                   Excitation Energy          OS       RS        RS     Einstein A
+	State   (eV)    (cm^-1)    (nm)     (au)              (l,au)   (v,au)     (s^-1)
+	 1 A1  10.556   85136.7   117.5   0.387911   0.1177   0.0000   0.0000  5.688443E+08
+	 2 A1  18.370  148163.3    67.5   0.675082   0.2787   0.0000   0.0000  4.080297E+09
+	 1 A2  10.101   81471.4   122.7   0.371211   0.0000   0.0000   0.0000  0.000000E+00
+	 2 A2  26.137  210806.6    47.4   0.960506   0.0000   0.0000   0.0000  0.000000E+00
+	 1 B1   7.923   63899.3   156.5   0.291147   0.0102   0.0000   0.0000  2.778116E+07
+	 2 B1  25.635  206758.2    48.4   0.942060   0.0001   0.0000   0.0000  3.986564E+06
+	 1 B2  12.864  103758.7    96.4   0.472759   0.1108   0.0000   0.0000  7.957447E+08
+	 2 B2  14.772  119144.7    83.9   0.542863   0.4778   0.0000   0.0000  4.523998E+09
+
+Doing transition
+
+	*********************************************************************
+	*********************************************************************
+	************                                             ************
+	************ Excited State-Excited State Transition Data ************
+	************                                             ************
+	*********************************************************************
+	*********************************************************************
+
+
+	*** Computing <1A1|X{pq}}|2A1> (LEFT) Transition Density ***
+
+		*** LTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** Computing <2A1|X{pq}}|1A1> (RIGHT) Transition Density ***
+
+		*** RTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** 1A1 -> 2A1 transition densities complete.
+
+	Oscillator Strength for 1 A1 to 2 A1
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	  0.00000000 	 -0.05879415
+	<n|mu_e|0>               0.00000000 	  0.00000000 	 -0.05129600
+	Dipole Strength          0.00301590 
+	Oscillator Strength      0.00057739 
+	Einstein A Coefficient   1.52987978e+06 
+	Einstein B Coefficient   3.66934337e+17 
+
+	Length-Gauge Rotational Strength for 1 A1 to 2 A1 Transition
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  0.00000000 	 -0.05879415
+	<q|mu_m|p>               0.00000000 	  0.00000000 	  0.00000000
+	<p|mu_m|q>*              0.00000000 	  0.00000000 	  0.00000000
+	<q|mu_e|p>*              0.00000000 	  0.00000000 	 -0.05129600
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 1 A1
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  0.00000000 	  0.02460566
+	<q|mu_m|p>               0.00000000 	  0.00000000 	  0.00000000
+	<p|mu_m|q>*              0.00000000 	  0.00000000 	  0.00000000
+	<q|mu_e|p>*              0.00000000 	  0.00000000 	  0.01004492
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	*** Computing <1A2|X{pq}}|1A1> (LEFT) Transition Density ***
+
+		*** LTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** Computing <1A1|X{pq}}|1A2> (RIGHT) Transition Density ***
+
+		*** RTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** 1A2 -> 1A1 transition densities complete.
+
+	Oscillator Strength for 1 A2 to 1 A1
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	  0.00000000 	  0.00000000
+	<n|mu_e|0>               0.00000000 	  0.00000000 	  0.00000000
+	Dipole Strength          0.00000000 
+	Oscillator Strength      0.00000000 
+	Einstein A Coefficient   0.00000000e+00 
+	Einstein B Coefficient   0.00000000e+00 
+
+	Length-Gauge Rotational Strength for 1 A2 to 1 A1 Transition
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  0.00000000 	  0.00000000
+	<q|mu_m|p>               0.00000000 	  0.00000000 	 -0.04578453
+	<p|mu_m|q>*              0.00000000 	  0.00000000 	 -0.04629517
+	<q|mu_e|p>*              0.00000000 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 1 A2
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  0.00000000 	  0.00000000
+	<q|mu_m|p>               0.00000000 	  0.00000000 	 -0.04578453
+	<p|mu_m|q>*              0.00000000 	  0.00000000 	 -0.04629517
+	<q|mu_e|p>*              0.00000000 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	*** Computing <1A2|X{pq}}|2A1> (LEFT) Transition Density ***
+
+		*** LTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** Computing <2A1|X{pq}}|1A2> (RIGHT) Transition Density ***
+
+		*** RTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** 1A2 -> 2A1 transition densities complete.
+
+	Oscillator Strength for 1 A2 to 2 A1
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	  0.00000000 	  0.00000000
+	<n|mu_e|0>               0.00000000 	  0.00000000 	  0.00000000
+	Dipole Strength          0.00000000 
+	Oscillator Strength      0.00000000 
+	Einstein A Coefficient   0.00000000e+00 
+	Einstein B Coefficient   0.00000000e+00 
+
+	Length-Gauge Rotational Strength for 1 A2 to 2 A1 Transition
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  0.00000000 	  0.00000000
+	<q|mu_m|p>               0.00000000 	  0.00000000 	 -0.47999752
+	<p|mu_m|q>*              0.00000000 	  0.00000000 	 -0.48612691
+	<q|mu_e|p>*              0.00000000 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 1 A2
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  0.00000000 	  0.00000000
+	<q|mu_m|p>               0.00000000 	  0.00000000 	 -0.47999752
+	<p|mu_m|q>*              0.00000000 	  0.00000000 	 -0.48612691
+	<q|mu_e|p>*              0.00000000 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	*** Computing <1A1|X{pq}}|2A2> (LEFT) Transition Density ***
+
+		*** LTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** Computing <2A2|X{pq}}|1A1> (RIGHT) Transition Density ***
+
+		*** RTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** 1A1 -> 2A2 transition densities complete.
+
+	Oscillator Strength for 1 A1 to 2 A2
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	  0.00000000 	  0.00000000
+	<n|mu_e|0>               0.00000000 	  0.00000000 	  0.00000000
+	Dipole Strength          0.00000000 
+	Oscillator Strength      0.00000000 
+	Einstein A Coefficient   0.00000000e+00 
+	Einstein B Coefficient   0.00000000e+00 
+
+	Length-Gauge Rotational Strength for 1 A1 to 2 A2 Transition
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  0.00000000 	  0.00000000
+	<q|mu_m|p>               0.00000000 	  0.00000000 	  0.12940468
+	<p|mu_m|q>*              0.00000000 	  0.00000000 	  0.12352525
+	<q|mu_e|p>*              0.00000000 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 1 A1
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  0.00000000 	  0.00000000
+	<q|mu_m|p>               0.00000000 	  0.00000000 	  0.12940468
+	<p|mu_m|q>*              0.00000000 	  0.00000000 	  0.12352525
+	<q|mu_e|p>*              0.00000000 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	*** Computing <2A1|X{pq}}|2A2> (LEFT) Transition Density ***
+
+		*** LTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** Computing <2A2|X{pq}}|2A1> (RIGHT) Transition Density ***
+
+		*** RTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** 2A1 -> 2A2 transition densities complete.
+
+	Oscillator Strength for 2 A1 to 2 A2
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	  0.00000000 	  0.00000000
+	<n|mu_e|0>               0.00000000 	  0.00000000 	  0.00000000
+	Dipole Strength          0.00000000 
+	Oscillator Strength      0.00000000 
+	Einstein A Coefficient   0.00000000e+00 
+	Einstein B Coefficient   0.00000000e+00 
+
+	Length-Gauge Rotational Strength for 2 A1 to 2 A2 Transition
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  0.00000000 	  0.00000000
+	<q|mu_m|p>               0.00000000 	  0.00000000 	  0.07684490
+	<p|mu_m|q>*              0.00000000 	  0.00000000 	  0.07093301
+	<q|mu_e|p>*              0.00000000 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 2 A1
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  0.00000000 	  0.00000000
+	<q|mu_m|p>               0.00000000 	  0.00000000 	  0.07684490
+	<p|mu_m|q>*              0.00000000 	  0.00000000 	  0.07093301
+	<q|mu_e|p>*              0.00000000 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	*** Computing <1A2|X{pq}}|2A2> (LEFT) Transition Density ***
+
+		*** LTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** Computing <2A2|X{pq}}|1A2> (RIGHT) Transition Density ***
+
+		*** RTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** 1A2 -> 2A2 transition densities complete.
+
+	Oscillator Strength for 1 A2 to 2 A2
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	  0.00000000 	  0.25076668
+	<n|mu_e|0>               0.00000000 	  0.00000000 	  0.26771603
+	Dipole Strength          0.06713426 
+	Oscillator Strength      0.02637459 
+	Einstein A Coefficient   2.94280798e+08 
+	Einstein B Coefficient   8.16798544e+18 
+
+	Length-Gauge Rotational Strength for 1 A2 to 2 A2 Transition
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  0.00000000 	  0.25076668
+	<q|mu_m|p>               0.00000000 	  0.00000000 	  0.00000000
+	<p|mu_m|q>*              0.00000000 	  0.00000000 	  0.00000000
+	<q|mu_e|p>*              0.00000000 	  0.00000000 	  0.26771603
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 1 A2
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  0.00000000 	  0.13061993
+	<q|mu_m|p>               0.00000000 	  0.00000000 	  0.00000000
+	<p|mu_m|q>*              0.00000000 	  0.00000000 	  0.00000000
+	<q|mu_e|p>*              0.00000000 	  0.00000000 	  0.14173180
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	*** Computing <1B1|X{pq}}|1A1> (LEFT) Transition Density ***
+
+		*** LTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** Computing <1A1|X{pq}}|1B1> (RIGHT) Transition Density ***
+
+		*** RTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** 1B1 -> 1A1 transition densities complete.
+
+	Oscillator Strength for 1 B1 to 1 A1
+	                              X    	       Y    	       Z
+	<0|mu_e|n>              -0.16514995 	  0.00000000 	  0.00000000
+	<n|mu_e|0>              -0.17220289 	  0.00000000 	  0.00000000
+	Dipole Strength          0.02843930 
+	Oscillator Strength      0.00183461 
+	Einstein A Coefficient   5.51932950e+05 
+	Einstein B Coefficient   3.46010792e+18 
+
+	Length-Gauge Rotational Strength for 1 B1 to 1 A1 Transition
+	                              X    	       Y    	       Z
+	<p|mu_e|q>              -0.16514995 	  0.00000000 	  0.00000000
+	<q|mu_m|p>               0.00000000 	  0.46674762 	  0.00000000
+	<p|mu_m|q>*              0.00000000 	  0.47198731 	  0.00000000
+	<q|mu_e|p>*             -0.17220289 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 1 B1
+	                              X    	       Y    	       Z
+	<p|mu_e|q>              -0.10932027 	  0.00000000 	  0.00000000
+	<q|mu_m|p>               0.00000000 	  0.46674762 	  0.00000000
+	<p|mu_m|q>*              0.00000000 	  0.47198731 	  0.00000000
+	<q|mu_e|p>*             -0.09624589 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	*** Computing <1B1|X{pq}}|2A1> (LEFT) Transition Density ***
+
+		*** LTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** Computing <2A1|X{pq}}|1B1> (RIGHT) Transition Density ***
+
+		*** RTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** 1B1 -> 2A1 transition densities complete.
+
+	Oscillator Strength for 1 B1 to 2 A1
+	                              X    	       Y    	       Z
+	<0|mu_e|n>              -0.05615869 	  0.00000000 	  0.00000000
+	<n|mu_e|0>              -0.05073909 	  0.00000000 	  0.00000000
+	Dipole Strength          0.00284944 
+	Oscillator Strength      0.00072933 
+	Einstein A Coefficient   3.45424140e+06 
+	Einstein B Coefficient   3.46681236e+17 
+
+	Length-Gauge Rotational Strength for 1 B1 to 2 A1 Transition
+	                              X    	       Y    	       Z
+	<p|mu_e|q>              -0.05615869 	  0.00000000 	  0.00000000
+	<q|mu_m|p>               0.00000000 	 -0.05236758 	  0.00000000
+	<p|mu_m|q>*              0.00000000 	 -0.05104876 	  0.00000000
+	<q|mu_e|p>*             -0.05073909 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 1 B1
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.03725068 	  0.00000000 	  0.00000000
+	<q|mu_m|p>               0.00000000 	 -0.05236758 	  0.00000000
+	<p|mu_m|q>*              0.00000000 	 -0.05104876 	  0.00000000
+	<q|mu_e|p>*              0.03004323 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	*** Computing <1B1|X{pq}}|1A2> (LEFT) Transition Density ***
+
+		*** LTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** Computing <1A2|X{pq}}|1B1> (RIGHT) Transition Density ***
+
+		*** RTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** 1B1 -> 1A2 transition densities complete.
+
+	Oscillator Strength for 1 B1 to 1 A2
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	  1.59437685 	  0.00000000
+	<n|mu_e|0>               0.00000000 	  1.58700111 	  0.00000000
+	Dipole Strength          2.53027783 
+	Oscillator Strength      0.13505618 
+	Einstein A Coefficient   2.78163630e+07 
+	Einstein B Coefficient   3.07849865e+20 
+
+	Length-Gauge Rotational Strength for 1 B1 to 1 A2 Transition
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  1.59437685 	  0.00000000
+	<q|mu_m|p>              -0.10749901 	  0.00000000 	  0.00000000
+	<p|mu_m|q>*             -0.11012965 	  0.00000000 	  0.00000000
+	<q|mu_e|p>*              0.00000000 	  1.58700111 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 1 B1
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  0.14039048 	  0.00000000
+	<q|mu_m|p>              -0.10749901 	  0.00000000 	  0.00000000
+	<p|mu_m|q>*             -0.11012965 	  0.00000000 	  0.00000000
+	<q|mu_e|p>*              0.00000000 	  0.16993929 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	*** Computing <1B1|X{pq}}|2A2> (LEFT) Transition Density ***
+
+		*** LTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** Computing <2A2|X{pq}}|1B1> (RIGHT) Transition Density ***
+
+		*** RTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** 1B1 -> 2A2 transition densities complete.
+
+	Oscillator Strength for 1 B1 to 2 A2
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	  0.03948724 	  0.00000000
+	<n|mu_e|0>               0.00000000 	  0.01264797 	  0.00000000
+	Dipole Strength          0.00049943 
+	Oscillator Strength      0.00022287 
+	Einstein A Coefficient   3.20829763e+06 
+	Einstein B Coefficient   6.07643043e+16 
+
+	Length-Gauge Rotational Strength for 1 B1 to 2 A2 Transition
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  0.03948724 	  0.00000000
+	<q|mu_m|p>               0.15598289 	  0.00000000 	  0.00000000
+	<p|mu_m|q>*              0.14620366 	  0.00000000 	  0.00000000
+	<q|mu_e|p>*              0.00000000 	  0.01264797 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 1 B1
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  0.00033387 	  0.00000000
+	<q|mu_m|p>               0.15598289 	  0.00000000 	  0.00000000
+	<p|mu_m|q>*              0.14620366 	  0.00000000 	  0.00000000
+	<q|mu_e|p>*              0.00000000 	 -0.00771644 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	*** Computing <1A1|X{pq}}|2B1> (LEFT) Transition Density ***
+
+		*** LTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** Computing <2B1|X{pq}}|1A1> (RIGHT) Transition Density ***
+
+		*** RTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** 1A1 -> 2B1 transition densities complete.
+
+	Oscillator Strength for 1 A1 to 2 B1
+	                              X    	       Y    	       Z
+	<0|mu_e|n>              -0.10641454 	  0.00000000 	  0.00000000
+	<n|mu_e|0>              -0.10367695 	  0.00000000 	  0.00000000
+	Dipole Strength          0.01103273 
+	Oscillator Strength      0.00407585 
+	Einstein A Coefficient   4.02143425e+07 
+	Einstein B Coefficient   1.34231340e+18 
+
+	Length-Gauge Rotational Strength for 1 A1 to 2 B1 Transition
+	                              X    	       Y    	       Z
+	<p|mu_e|q>              -0.10641454 	  0.00000000 	  0.00000000
+	<q|mu_m|p>               0.00000000 	 -0.07146906 	  0.00000000
+	<p|mu_m|q>*              0.00000000 	 -0.06731277 	  0.00000000
+	<q|mu_e|p>*             -0.10367695 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 1 A1
+	                              X    	       Y    	       Z
+	<p|mu_e|q>              -0.06448741 	  0.00000000 	  0.00000000
+	<q|mu_m|p>               0.00000000 	 -0.07146906 	  0.00000000
+	<p|mu_m|q>*              0.00000000 	 -0.06731277 	  0.00000000
+	<q|mu_e|p>*             -0.06901949 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	*** Computing <2A1|X{pq}}|2B1> (LEFT) Transition Density ***
+
+		*** LTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** Computing <2B1|X{pq}}|2A1> (RIGHT) Transition Density ***
+
+		*** RTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** 2A1 -> 2B1 transition densities complete.
+
+	Oscillator Strength for 2 A1 to 2 B1
+	                              X    	       Y    	       Z
+	<0|mu_e|n>              -0.02250265 	  0.00000000 	  0.00000000
+	<n|mu_e|0>              -0.02476202 	  0.00000000 	  0.00000000
+	Dipole Strength          0.00055721 
+	Oscillator Strength      0.00009918 
+	Einstein A Coefficient   2.27124828e+05 
+	Einstein B Coefficient   6.77938995e+16 
+
+	Length-Gauge Rotational Strength for 2 A1 to 2 B1 Transition
+	                              X    	       Y    	       Z
+	<p|mu_e|q>              -0.02250265 	  0.00000000 	  0.00000000
+	<q|mu_m|p>               0.00000000 	 -0.06649071 	  0.00000000
+	<p|mu_m|q>*              0.00000000 	 -0.06218387 	  0.00000000
+	<q|mu_e|p>*             -0.02476202 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 2 A1
+	                              X    	       Y    	       Z
+	<p|mu_e|q>              -0.01913102 	  0.00000000 	  0.00000000
+	<q|mu_m|p>               0.00000000 	 -0.06649071 	  0.00000000
+	<p|mu_m|q>*              0.00000000 	 -0.06218387 	  0.00000000
+	<q|mu_e|p>*             -0.02102843 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	*** Computing <1A2|X{pq}}|2B1> (LEFT) Transition Density ***
+
+		*** LTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** Computing <2B1|X{pq}}|1A2> (RIGHT) Transition Density ***
+
+		*** RTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** 1A2 -> 2B1 transition densities complete.
+
+	Oscillator Strength for 1 A2 to 2 B1
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	  0.06412963 	  0.00000000
+	<n|mu_e|0>               0.00000000 	  0.09104942 	  0.00000000
+	Dipole Strength          0.00583897 
+	Oscillator Strength      0.00222211 
+	Einstein A Coefficient   2.32658437e+07 
+	Einstein B Coefficient   7.10406061e+17 
+
+	Length-Gauge Rotational Strength for 1 A2 to 2 B1 Transition
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  0.06412963 	  0.00000000
+	<q|mu_m|p>              -0.10139812 	  0.00000000 	  0.00000000
+	<p|mu_m|q>*             -0.08911340 	  0.00000000 	  0.00000000
+	<q|mu_e|p>*              0.00000000 	  0.09104942 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 1 A2
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  0.05895211 	  0.00000000
+	<q|mu_m|p>              -0.10139812 	  0.00000000 	  0.00000000
+	<p|mu_m|q>*             -0.08911340 	  0.00000000 	  0.00000000
+	<q|mu_e|p>*              0.00000000 	  0.06625451 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	*** Computing <2B1|X{pq}}|2A2> (LEFT) Transition Density ***
+
+		*** LTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** Computing <2A2|X{pq}}|2B1> (RIGHT) Transition Density ***
+
+		*** RTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** 2B1 -> 2A2 transition densities complete.
+
+	Oscillator Strength for 2 B1 to 2 A2
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	  0.26497908 	  0.00000000
+	<n|mu_e|0>               0.00000000 	  0.25620179 	  0.00000000
+	Dipole Strength          0.06788811 
+	Oscillator Strength      0.00083485 
+	Einstein A Coefficient   9.12701333e+03 
+	Einstein B Coefficient   8.25970432e+18 
+
+	Length-Gauge Rotational Strength for 2 B1 to 2 A2 Transition
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  0.26497908 	  0.00000000
+	<q|mu_m|p>               0.18354335 	  0.00000000 	  0.00000000
+	<p|mu_m|q>*              0.16974777 	  0.00000000 	  0.00000000
+	<q|mu_e|p>*              0.00000000 	  0.25620179 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 2 B1
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  0.00032211 	  0.00000000
+	<q|mu_m|p>               0.18354335 	  0.00000000 	  0.00000000
+	<p|mu_m|q>*              0.16974777 	  0.00000000 	  0.00000000
+	<q|mu_e|p>*              0.00000000 	 -0.01108402 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	*** Computing <1B1|X{pq}}|2B1> (LEFT) Transition Density ***
+
+		*** LTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** Computing <2B1|X{pq}}|1B1> (RIGHT) Transition Density ***
+
+		*** RTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** 1B1 -> 2B1 transition densities complete.
+
+	Oscillator Strength for 1 B1 to 2 B1
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	  0.00000000 	 -0.18209904
+	<n|mu_e|0>               0.00000000 	  0.00000000 	 -0.18385729
+	Dipole Strength          0.03348024 
+	Oscillator Strength      0.01452848 
+	Einstein A Coefficient   1.97777397e+08 
+	Einstein B Coefficient   4.07342072e+18 
+
+	Length-Gauge Rotational Strength for 1 B1 to 2 B1 Transition
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  0.00000000 	 -0.18209904
+	<q|mu_m|p>               0.00000000 	  0.00000000 	  0.00000000
+	<p|mu_m|q>*              0.00000000 	  0.00000000 	  0.00000000
+	<q|mu_e|p>*              0.00000000 	  0.00000000 	 -0.18385729
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 1 B1
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  0.00000000 	 -0.09805113
+	<q|mu_m|p>               0.00000000 	  0.00000000 	  0.00000000
+	<p|mu_m|q>*              0.00000000 	  0.00000000 	  0.00000000
+	<q|mu_e|p>*              0.00000000 	  0.00000000 	 -0.09744457
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	*** Computing <1A1|X{pq}}|1B2> (LEFT) Transition Density ***
+
+		*** LTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** Computing <1B2|X{pq}}|1A1> (RIGHT) Transition Density ***
+
+		*** RTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** 1A1 -> 1B2 transition densities complete.
+
+	Oscillator Strength for 1 A1 to 1 B2
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	 -1.61710064 	  0.00000000
+	<n|mu_e|0>               0.00000000 	 -1.60454111 	  0.00000000
+	Dipole Strength          2.59470446 
+	Oscillator Strength      0.14677067 
+	Einstein A Coefficient   3.39496613e+07 
+	Einstein B Coefficient   3.15688423e+20 
+
+	Length-Gauge Rotational Strength for 1 A1 to 1 B2 Transition
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	 -1.61710064 	  0.00000000
+	<q|mu_m|p>               0.07050234 	  0.00000000 	  0.00000000
+	<p|mu_m|q>*              0.07406798 	  0.00000000 	  0.00000000
+	<q|mu_e|p>*              0.00000000 	 -1.60454111 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 1 A1
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	 -0.13878314 	  0.00000000
+	<q|mu_m|p>               0.07050234 	  0.00000000 	  0.00000000
+	<p|mu_m|q>*              0.07406798 	  0.00000000 	  0.00000000
+	<q|mu_e|p>*              0.00000000 	 -0.16012384 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	*** Computing <1B2|X{pq}}|2A1> (LEFT) Transition Density ***
+
+		*** LTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** Computing <2A1|X{pq}}|1B2> (RIGHT) Transition Density ***
+
+		*** RTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** 1B2 -> 2A1 transition densities complete.
+
+	Oscillator Strength for 1 B2 to 2 A1
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	 -0.30006656 	  0.00000000
+	<n|mu_e|0>               0.00000000 	 -0.27981945 	  0.00000000
+	Dipole Strength          0.08396446 
+	Oscillator Strength      0.01132526 
+	Einstein A Coefficient   1.48952309e+07 
+	Einstein B Coefficient   1.02156558e+19 
+
+	Length-Gauge Rotational Strength for 1 B2 to 2 A1 Transition
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	 -0.30006656 	  0.00000000
+	<q|mu_m|p>              -0.40831577 	  0.00000000 	  0.00000000
+	<p|mu_m|q>*             -0.41266431 	  0.00000000 	  0.00000000
+	<q|mu_e|p>*              0.00000000 	 -0.27981945 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 1 B2
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	 -0.11107540 	  0.00000000
+	<q|mu_m|p>              -0.40831577 	  0.00000000 	  0.00000000
+	<p|mu_m|q>*             -0.41266431 	  0.00000000 	  0.00000000
+	<q|mu_e|p>*              0.00000000 	 -0.08425156 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	*** Computing <1A2|X{pq}}|1B2> (LEFT) Transition Density ***
+
+		*** LTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** Computing <1B2|X{pq}}|1A2> (RIGHT) Transition Density ***
+
+		*** RTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** 1A2 -> 1B2 transition densities complete.
+
+	Oscillator Strength for 1 A2 to 1 B2
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.17472057 	  0.00000000 	  0.00000000
+	<n|mu_e|0>               0.17834465 	  0.00000000 	  0.00000000
+	Dipole Strength          0.03116048 
+	Oscillator Strength      0.00210954 
+	Einstein A Coefficient   6.98949847e+05 
+	Einstein B Coefficient   3.79118423e+18 
+
+	Length-Gauge Rotational Strength for 1 A2 to 1 B2 Transition
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.17472057 	  0.00000000 	  0.00000000
+	<q|mu_m|p>               0.00000000 	 -0.46269180 	  0.00000000
+	<p|mu_m|q>*              0.00000000 	 -0.46872389 	  0.00000000
+	<q|mu_e|p>*              0.17834465 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 1 A2
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.09043765 	  0.00000000 	  0.00000000
+	<q|mu_m|p>               0.00000000 	 -0.46269180 	  0.00000000
+	<p|mu_m|q>*              0.00000000 	 -0.46872389 	  0.00000000
+	<q|mu_e|p>*              0.08099014 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	*** Computing <1B2|X{pq}}|2A2> (LEFT) Transition Density ***
+
+		*** LTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** Computing <2A2|X{pq}}|1B2> (RIGHT) Transition Density ***
+
+		*** RTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** 1B2 -> 2A2 transition densities complete.
+
+	Oscillator Strength for 1 B2 to 2 A2
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.11167651 	  0.00000000 	  0.00000000
+	<n|mu_e|0>               0.11146066 	  0.00000000 	  0.00000000
+	Dipole Strength          0.01244754 
+	Oscillator Strength      0.00404749 
+	Einstein A Coefficient   3.09374850e+07 
+	Einstein B Coefficient   1.51444747e+18 
+
+	Length-Gauge Rotational Strength for 1 B2 to 2 A2 Transition
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.11167651 	  0.00000000 	  0.00000000
+	<q|mu_m|p>               0.00000000 	  0.09657690 	  0.00000000
+	<p|mu_m|q>*              0.00000000 	  0.08949805 	  0.00000000
+	<q|mu_e|p>*              0.11146066 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 1 B2
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.07771595 	  0.00000000 	  0.00000000
+	<q|mu_m|p>               0.00000000 	  0.09657690 	  0.00000000
+	<p|mu_m|q>*              0.00000000 	  0.08949805 	  0.00000000
+	<q|mu_e|p>*              0.08191947 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	*** Computing <1B1|X{pq}}|1B2> (LEFT) Transition Density ***
+
+		*** LTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** Computing <1B2|X{pq}}|1B1> (RIGHT) Transition Density ***
+
+		*** RTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** 1B1 -> 1B2 transition densities complete.
+
+	Oscillator Strength for 1 B1 to 1 B2
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	  0.00000000 	  0.00000000
+	<n|mu_e|0>               0.00000000 	  0.00000000 	  0.00000000
+	Dipole Strength          0.00000000 
+	Oscillator Strength      0.00000000 
+	Einstein A Coefficient   0.00000000e+00 
+	Einstein B Coefficient   0.00000000e+00 
+
+	Length-Gauge Rotational Strength for 1 B1 to 1 B2 Transition
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  0.00000000 	  0.00000000
+	<q|mu_m|p>               0.00000000 	  0.00000000 	  0.08580167
+	<p|mu_m|q>*              0.00000000 	  0.00000000 	  0.08518578
+	<q|mu_e|p>*              0.00000000 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 1 B1
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  0.00000000 	  0.00000000
+	<q|mu_m|p>               0.00000000 	  0.00000000 	  0.08580167
+	<p|mu_m|q>*              0.00000000 	  0.00000000 	  0.08518578
+	<q|mu_e|p>*              0.00000000 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	*** Computing <1B2|X{pq}}|2B1> (LEFT) Transition Density ***
+
+		*** LTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** Computing <2B1|X{pq}}|1B2> (RIGHT) Transition Density ***
+
+		*** RTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** 1B2 -> 2B1 transition densities complete.
+
+	Oscillator Strength for 1 B2 to 2 B1
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	  0.00000000 	  0.00000000
+	<n|mu_e|0>               0.00000000 	  0.00000000 	  0.00000000
+	Dipole Strength          0.00000000 
+	Oscillator Strength      0.00000000 
+	Einstein A Coefficient   0.00000000e+00 
+	Einstein B Coefficient   0.00000000e+00 
+
+	Length-Gauge Rotational Strength for 1 B2 to 2 B1 Transition
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  0.00000000 	  0.00000000
+	<q|mu_m|p>               0.00000000 	  0.00000000 	 -0.07901584
+	<p|mu_m|q>*              0.00000000 	  0.00000000 	 -0.07461978
+	<q|mu_e|p>*              0.00000000 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 1 B2
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  0.00000000 	  0.00000000
+	<q|mu_m|p>               0.00000000 	  0.00000000 	 -0.07901584
+	<p|mu_m|q>*              0.00000000 	  0.00000000 	 -0.07461978
+	<q|mu_e|p>*              0.00000000 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	*** Computing <1A1|X{pq}}|2B2> (LEFT) Transition Density ***
+
+		*** LTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** Computing <2B2|X{pq}}|1A1> (RIGHT) Transition Density ***
+
+		*** RTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** 1A1 -> 2B2 transition densities complete.
+
+	Oscillator Strength for 1 A1 to 2 B2
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	  0.03557486 	  0.00000000
+	<n|mu_e|0>               0.00000000 	  0.03661946 	  0.00000000
+	Dipole Strength          0.00130273 
+	Oscillator Strength      0.00013457 
+	Einstein A Coefficient   1.03816191e+05 
+	Einstein B Coefficient   1.58498780e+17 
+
+	Length-Gauge Rotational Strength for 1 A1 to 2 B2 Transition
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  0.03557486 	  0.00000000
+	<q|mu_m|p>              -0.46155033 	  0.00000000 	  0.00000000
+	<p|mu_m|q>*             -0.46681939 	  0.00000000 	  0.00000000
+	<q|mu_e|p>*              0.00000000 	  0.03661946 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 1 A1
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	 -0.05873723 	  0.00000000
+	<q|mu_m|p>              -0.46155033 	  0.00000000 	  0.00000000
+	<p|mu_m|q>*             -0.46681939 	  0.00000000 	  0.00000000
+	<q|mu_e|p>*              0.00000000 	 -0.02457961 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	*** Computing <2B2|X{pq}}|2A1> (LEFT) Transition Density ***
+
+		*** LTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** Computing <2A1|X{pq}}|2B2> (RIGHT) Transition Density ***
+
+		*** RTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** 2B2 -> 2A1 transition densities complete.
+
+	Oscillator Strength for 2 B2 to 2 A1
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	 -1.47253362 	  0.00000000
+	<n|mu_e|0>               0.00000000 	 -1.48315435 	  0.00000000
+	Dipole Strength          2.18399464 
+	Oscillator Strength      0.19251008 
+	Einstein A Coefficient   1.08131114e+08 
+	Einstein B Coefficient   2.65718827e+20 
+
+	Length-Gauge Rotational Strength for 2 B2 to 2 A1 Transition
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	 -1.47253362 	  0.00000000
+	<q|mu_m|p>               0.13938131 	  0.00000000 	  0.00000000
+	<p|mu_m|q>*              0.14129465 	  0.00000000 	  0.00000000
+	<q|mu_e|p>*              0.00000000 	 -1.48315435 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 2 B2
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	 -0.18369211 	  0.00000000
+	<q|mu_m|p>               0.13938131 	  0.00000000 	  0.00000000
+	<p|mu_m|q>*              0.14129465 	  0.00000000 	  0.00000000
+	<q|mu_e|p>*              0.00000000 	 -0.21304328 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	*** Computing <1A2|X{pq}}|2B2> (LEFT) Transition Density ***
+
+		*** LTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** Computing <2B2|X{pq}}|1A2> (RIGHT) Transition Density ***
+
+		*** RTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** 1A2 -> 2B2 transition densities complete.
+
+	Oscillator Strength for 1 A2 to 2 B2
+	                              X    	       Y    	       Z
+	<0|mu_e|n>              -0.00659689 	  0.00000000 	  0.00000000
+	<n|mu_e|0>              -0.00898049 	  0.00000000 	  0.00000000
+	Dipole Strength          0.00005924 
+	Oscillator Strength      0.00000678 
+	Einstein A Coefficient   6.41811830e+03 
+	Einstein B Coefficient   7.20792236e+15 
+
+	Length-Gauge Rotational Strength for 1 A2 to 2 B2 Transition
+	                              X    	       Y    	       Z
+	<p|mu_e|q>              -0.00659689 	  0.00000000 	  0.00000000
+	<q|mu_m|p>               0.00000000 	  0.07993498 	  0.00000000
+	<p|mu_m|q>*              0.00000000 	  0.08255915 	  0.00000000
+	<q|mu_e|p>*             -0.00898049 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 1 A2
+	                              X    	       Y    	       Z
+	<p|mu_e|q>              -0.00548397 	  0.00000000 	  0.00000000
+	<q|mu_m|p>               0.00000000 	  0.07993498 	  0.00000000
+	<p|mu_m|q>*              0.00000000 	  0.08255915 	  0.00000000
+	<q|mu_e|p>*             -0.00507495 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	*** Computing <2B2|X{pq}}|2A2> (LEFT) Transition Density ***
+
+		*** LTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** Computing <2A2|X{pq}}|2B2> (RIGHT) Transition Density ***
+
+		*** RTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** 2B2 -> 2A2 transition densities complete.
+
+	Oscillator Strength for 2 B2 to 2 A2
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.06344721 	  0.00000000 	  0.00000000
+	<n|mu_e|0>               0.06421093 	  0.00000000 	  0.00000000
+	Dipole Strength          0.00407400 
+	Oscillator Strength      0.00113432 
+	Einstein A Coefficient   6.35705043e+06 
+	Einstein B Coefficient   4.95669602e+17 
+
+	Length-Gauge Rotational Strength for 2 B2 to 2 A2 Transition
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.06344721 	  0.00000000 	  0.00000000
+	<q|mu_m|p>               0.00000000 	  0.05483804 	  0.00000000
+	<p|mu_m|q>*              0.00000000 	  0.05339271 	  0.00000000
+	<q|mu_e|p>*              0.06421093 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 2 B2
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.02325230 	  0.00000000 	  0.00000000
+	<q|mu_m|p>               0.00000000 	  0.05483804 	  0.00000000
+	<p|mu_m|q>*              0.00000000 	  0.05339271 	  0.00000000
+	<q|mu_e|p>*              0.02583125 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	*** Computing <1B1|X{pq}}|2B2> (LEFT) Transition Density ***
+
+		*** LTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** Computing <2B2|X{pq}}|1B1> (RIGHT) Transition Density ***
+
+		*** RTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** 1B1 -> 2B2 transition densities complete.
+
+	Oscillator Strength for 1 B1 to 2 B2
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	  0.00000000 	  0.00000000
+	<n|mu_e|0>               0.00000000 	  0.00000000 	  0.00000000
+	Dipole Strength          0.00000000 
+	Oscillator Strength      0.00000000 
+	Einstein A Coefficient   0.00000000e+00 
+	Einstein B Coefficient   0.00000000e+00 
+
+	Length-Gauge Rotational Strength for 1 B1 to 2 B2 Transition
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  0.00000000 	  0.00000000
+	<q|mu_m|p>               0.00000000 	  0.00000000 	  0.45316791
+	<p|mu_m|q>*              0.00000000 	  0.00000000 	  0.46206069
+	<q|mu_e|p>*              0.00000000 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 1 B1
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  0.00000000 	  0.00000000
+	<q|mu_m|p>               0.00000000 	  0.00000000 	  0.45316791
+	<p|mu_m|q>*              0.00000000 	  0.00000000 	  0.46206069
+	<q|mu_e|p>*              0.00000000 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	*** Computing <2B2|X{pq}}|2B1> (LEFT) Transition Density ***
+
+		*** LTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** Computing <2B1|X{pq}}|2B2> (RIGHT) Transition Density ***
+
+		*** RTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** 2B2 -> 2B1 transition densities complete.
+
+	Oscillator Strength for 2 B2 to 2 B1
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	  0.00000000 	  0.00000000
+	<n|mu_e|0>               0.00000000 	  0.00000000 	  0.00000000
+	Dipole Strength          0.00000000 
+	Oscillator Strength      0.00000000 
+	Einstein A Coefficient   0.00000000e+00 
+	Einstein B Coefficient   0.00000000e+00 
+
+	Length-Gauge Rotational Strength for 2 B2 to 2 B1 Transition
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  0.00000000 	  0.00000000
+	<q|mu_m|p>               0.00000000 	  0.00000000 	 -0.08625715
+	<p|mu_m|q>*              0.00000000 	  0.00000000 	 -0.08644781
+	<q|mu_e|p>*              0.00000000 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 2 B2
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  0.00000000 	  0.00000000
+	<q|mu_m|p>               0.00000000 	  0.00000000 	 -0.08625715
+	<p|mu_m|q>*              0.00000000 	  0.00000000 	 -0.08644781
+	<q|mu_e|p>*              0.00000000 	  0.00000000 	  0.00000000
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	*** Computing <1B2|X{pq}}|2B2> (LEFT) Transition Density ***
+
+		*** LTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** Computing <2B2|X{pq}}|1B2> (RIGHT) Transition Density ***
+
+		*** RTD Setup complete.
+		***...density has been built...
+		***...density has been sorted...
+
+	*** 1B2 -> 2B2 transition densities complete.
+
+	Oscillator Strength for 1 B2 to 2 B2
+	                              X    	       Y    	       Z
+	<0|mu_e|n>               0.00000000 	  0.00000000 	  0.04333516
+	<n|mu_e|0>               0.00000000 	  0.00000000 	  0.04554796
+	Dipole Strength          0.00197383 
+	Oscillator Strength      0.00009225 
+	Einstein A Coefficient   1.45663529e+04 
+	Einstein B Coefficient   2.40148617e+17 
+
+	Length-Gauge Rotational Strength for 1 B2 to 2 B2 Transition
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  0.00000000 	  0.04333516
+	<q|mu_m|p>               0.00000000 	  0.00000000 	  0.00000000
+	<p|mu_m|q>*              0.00000000 	  0.00000000 	  0.00000000
+	<q|mu_e|p>*              0.00000000 	  0.00000000 	  0.04554796
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	Velocity-Gauge Rotational Strength for 1 B2
+	                              X    	       Y    	       Z
+	<p|mu_e|q>               0.00000000 	  0.00000000 	 -0.00581876
+	<q|mu_m|p>               0.00000000 	  0.00000000 	  0.00000000
+	<p|mu_m|q>*              0.00000000 	  0.00000000 	  0.00000000
+	<q|mu_e|p>*              0.00000000 	  0.00000000 	 -0.00129671
+
+	Rotational Strength (au)                  0.00000000
+	Rotational Strength (10^-40 esu^2 cm^2)   0.00000000
+
+	                   Ground State -> Excited State Transitions
+
+	                   Excitation Energy          OS       RS        RS     Einstein A
+	State   (eV)    (cm^-1)    (nm)     (au)              (l,au)   (v,au)     (s^-1)
+	 1 A1  10.556   85136.7   117.5   0.387911   0.1177   0.0000   0.0000  5.688443E+08
+	 2 A1  18.370  148163.3    67.5   0.675082   0.2787   0.0000   0.0000  4.080297E+09
+	 1 A2  10.101   81471.4   122.7   0.371211   0.0000   0.0000   0.0000  0.000000E+00
+	 2 A2  26.137  210806.6    47.4   0.960506   0.0000   0.0000   0.0000  0.000000E+00
+	 1 B1   7.923   63899.3   156.5   0.291147   0.0102   0.0000   0.0000  2.778116E+07
+	 2 B1  25.635  206758.2    48.4   0.942060   0.0001   0.0000   0.0000  3.986564E+06
+	 1 B2  12.864  103758.7    96.4   0.472759   0.1108   0.0000   0.0000  7.957447E+08
+	 2 B2  14.772  119144.7    83.9   0.542863   0.4778   0.0000   0.0000  4.523998E+09
+
+
+	                   Excited State -> Excited State Transitions
+
+	                        Excitation Energy          OS       RS        RS     Einstein A
+	Transition   (eV)    (cm^-1)    (nm)     (au)              (l,au)   (v,au)     (s^-1)
+	  1A1->2A1   7.814   63026.7   158.7   0.287171   0.0006   0.0000   0.0000  1.529880E+06
+	  1A2->1A1   0.454    3665.3  2728.3   0.016700   0.0000   0.0000   0.0000  0.000000E+00
+	  1A2->2A1   8.269   66692.0   149.9   0.303871   0.0000   0.0000   0.0000  0.000000E+00
+	  1A1->2A2  15.581  125670.0    79.6   0.572594   0.0000   0.0000   0.0000  0.000000E+00
+	  2A1->2A2   7.767   62643.3   159.6   0.285424   0.0000   0.0000   0.0000  0.000000E+00
+	  1A2->2A2  16.036  129335.3    77.3   0.589295   0.0264   0.0000   0.0000  2.942808E+08
+	  1B1->1A1   2.633   21237.3   470.9   0.096764   0.0018   0.0000   0.0000  5.519329E+05
+	  1B1->2A1  10.447   84264.0   118.7   0.383935   0.0007   0.0000   0.0000  3.454241E+06
+	  1B1->1A2   2.179   17572.0   569.1   0.080064   0.1351   0.0000   0.0000  2.781636E+07
+	  1B1->2A2  18.214  146907.3    68.1   0.669359   0.0002   0.0000   0.0000  3.208298E+06
+	  1A1->2B1  15.079  121621.5    82.2   0.554148   0.0041   0.0000   0.0000  4.021434E+07
+	  2A1->2B1   7.265   58594.8   170.7   0.266978   0.0001   0.0000   0.0000  2.271248E+05
+	  1A2->2B1  15.534  125286.8    79.8   0.570849   0.0022   0.0000   0.0000  2.326584E+07
+	  2B1->2A2   0.502    4048.5  2470.1   0.018446   0.0008   0.0000   0.0000  9.127013E+03
+	  1B1->2B1  17.712  142858.9    70.0   0.650913   0.0145   0.0000   0.0000  1.977774E+08
+	  1A1->1B2   2.309   18622.0   537.0   0.084848   0.1468   0.0000   0.0000  3.394966E+07
+	  1B2->2A1   5.505   44404.6   225.2   0.202322   0.0113   0.0000   0.0000  1.489523E+07
+	  1A2->1B2   2.763   22287.3   448.7   0.101549   0.0021   0.0000   0.0000  6.989498E+05
+	  1B2->2A2  13.272  107047.9    93.4   0.487746   0.0040   0.0000   0.0000  3.093749E+07
+	  1B1->1B2   4.942   39859.4   250.9   0.181613   0.0000   0.0000   0.0000  0.000000E+00
+	  1B2->2B1  12.770  102999.5    97.1   0.469300   0.0000   0.0000   0.0000  0.000000E+00
+	  1A1->2B2   4.216   34008.0   294.0   0.154952   0.0001   0.0000   0.0000  1.038162E+05
+	  2B2->2A1   3.598   29018.7   344.6   0.132219   0.1925   0.0000   0.0000  1.081311E+08
+	  1A2->2B2   4.671   37673.3   265.4   0.171652   0.0000   0.0000   0.0000  6.418118E+03
+	  2B2->2A2  11.365   91662.0   109.1   0.417643   0.0011   0.0000   0.0000  6.357050E+06
+	  1B1->2B2   6.850   55245.3   181.0   0.251716   0.0000   0.0000   0.0000  0.000000E+00
+	  2B2->2B1  10.863   87613.5   114.1   0.399197   0.0000   0.0000   0.0000  0.000000E+00
+	  1B2->2B2   1.908   15386.0   649.9   0.070104   0.0001   0.0000   0.0000  1.456635E+04
+
+    Nuclear Repulsion Energy..............................................................PASSED
+    SCF Energy............................................................................PASSED
+    CCSD Energy...........................................................................PASSED
+    Left-Right CCSD Overlap...............................................................PASSED
+    Root 1 (A1) Energy....................................................................PASSED
+    Root 2 (A1) Energy....................................................................PASSED
+    Root 0 (B1) Energy....................................................................PASSED
+    Root 1 (B1) Energy....................................................................PASSED
+    Root 0 (A2) Energy....................................................................PASSED
+    Root 1 (A2) Energy....................................................................PASSED
+    Root 0 (B2) Energy....................................................................PASSED
+    Root 1 (B2) Energy....................................................................PASSED
+    CC ROOT 0 (A1) -> ROOT 1 (A1) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 1 (A1) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 0 (A1) -> ROOT 1 (A1) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 1 (A1) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 0 (A1) -> ROOT 1 (A1) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 1 (A1) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 0 (A1) -> ROOT 1 (A1) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 1 (A1) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 0 (A1) -> ROOT 1 (A1) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 1 (A1) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 0 (A1) -> ROOT 2 (A1) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 2 (A1) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 0 (A1) -> ROOT 2 (A1) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 2 (A1) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 0 (A1) -> ROOT 2 (A1) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 2 (A1) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 0 (A1) -> ROOT 2 (A1) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 2 (A1) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 0 (A1) -> ROOT 2 (A1) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 2 (A1) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 0 (A1) -> ROOT 0 (A2) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 0 (A2) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 0 (A1) -> ROOT 0 (A2) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 0 (A2) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 0 (A1) -> ROOT 0 (A2) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 0 (A2) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 0 (A1) -> ROOT 0 (A2) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 0 (A2) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 0 (A1) -> ROOT 0 (A2) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 0 (A2) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 0 (A1) -> ROOT 1 (A2) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 1 (A2) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 0 (A1) -> ROOT 1 (A2) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 1 (A2) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 0 (A1) -> ROOT 1 (A2) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 1 (A2) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 0 (A1) -> ROOT 1 (A2) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 1 (A2) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 0 (A1) -> ROOT 1 (A2) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 1 (A2) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 0 (A1) -> ROOT 0 (B1) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 0 (B1) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 0 (A1) -> ROOT 0 (B1) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 0 (B1) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 0 (A1) -> ROOT 0 (B1) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 0 (B1) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 0 (A1) -> ROOT 0 (B1) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 0 (B1) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 0 (A1) -> ROOT 0 (B1) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 0 (B1) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 0 (A1) -> ROOT 1 (B1) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 1 (B1) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 0 (A1) -> ROOT 1 (B1) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 1 (B1) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 0 (A1) -> ROOT 1 (B1) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 1 (B1) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 0 (A1) -> ROOT 1 (B1) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 1 (B1) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 0 (A1) -> ROOT 1 (B1) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 1 (B1) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 0 (A1) -> ROOT 0 (B2) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 0 (B2) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 0 (A1) -> ROOT 0 (B2) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 0 (B2) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 0 (A1) -> ROOT 0 (B2) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 0 (B2) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 0 (A1) -> ROOT 0 (B2) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 0 (B2) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 0 (A1) -> ROOT 0 (B2) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 0 (B2) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 0 (A1) -> ROOT 1 (B2) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 1 (B2) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 0 (A1) -> ROOT 1 (B2) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 1 (B2) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 0 (A1) -> ROOT 1 (B2) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 1 (B2) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 0 (A1) -> ROOT 1 (B2) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 1 (B2) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 0 (A1) -> ROOT 1 (B2) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 0 (A1) -> ROOT 1 (B2) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 1 (A1) -> ROOT 2 (A1) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 1 (A1) -> ROOT 2 (A1) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 1 (A1) -> ROOT 2 (A1) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 1 (A1) -> ROOT 2 (A1) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 1 (A1) -> ROOT 2 (A1) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 1 (A1) -> ROOT 2 (A1) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 1 (A1) -> ROOT 2 (A1) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 1 (A1) -> ROOT 2 (A1) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 1 (A1) -> ROOT 2 (A1) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 1 (A1) -> ROOT 2 (A1) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 0 (A2) -> ROOT 1 (A1) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 0 (A2) -> ROOT 1 (A1) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 0 (A2) -> ROOT 1 (A1) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 0 (A2) -> ROOT 1 (A1) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 0 (A2) -> ROOT 1 (A1) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 0 (A2) -> ROOT 1 (A1) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 0 (A2) -> ROOT 1 (A1) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 0 (A2) -> ROOT 1 (A1) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 0 (A2) -> ROOT 1 (A1) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 0 (A2) -> ROOT 1 (A1) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 0 (A2) -> ROOT 2 (A1) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 0 (A2) -> ROOT 2 (A1) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 0 (A2) -> ROOT 2 (A1) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 0 (A2) -> ROOT 2 (A1) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 0 (A2) -> ROOT 2 (A1) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 0 (A2) -> ROOT 2 (A1) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 0 (A2) -> ROOT 2 (A1) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 0 (A2) -> ROOT 2 (A1) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 0 (A2) -> ROOT 2 (A1) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 0 (A2) -> ROOT 2 (A1) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 1 (A1) -> ROOT 1 (A2) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 1 (A1) -> ROOT 1 (A2) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 1 (A1) -> ROOT 1 (A2) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 1 (A1) -> ROOT 1 (A2) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 1 (A1) -> ROOT 1 (A2) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 1 (A1) -> ROOT 1 (A2) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 1 (A1) -> ROOT 1 (A2) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 1 (A1) -> ROOT 1 (A2) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 1 (A1) -> ROOT 1 (A2) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 1 (A1) -> ROOT 1 (A2) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 2 (A1) -> ROOT 1 (A2) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 2 (A1) -> ROOT 1 (A2) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 2 (A1) -> ROOT 1 (A2) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 2 (A1) -> ROOT 1 (A2) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 2 (A1) -> ROOT 1 (A2) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 2 (A1) -> ROOT 1 (A2) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 2 (A1) -> ROOT 1 (A2) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 2 (A1) -> ROOT 1 (A2) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 2 (A1) -> ROOT 1 (A2) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 2 (A1) -> ROOT 1 (A2) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 0 (A2) -> ROOT 1 (A2) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 0 (A2) -> ROOT 1 (A2) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 0 (A2) -> ROOT 1 (A2) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 0 (A2) -> ROOT 1 (A2) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 0 (A2) -> ROOT 1 (A2) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 0 (A2) -> ROOT 1 (A2) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 0 (A2) -> ROOT 1 (A2) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 0 (A2) -> ROOT 1 (A2) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 0 (A2) -> ROOT 1 (A2) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 0 (A2) -> ROOT 1 (A2) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 0 (B1) -> ROOT 1 (A1) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 1 (A1) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 0 (B1) -> ROOT 1 (A1) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 1 (A1) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 0 (B1) -> ROOT 1 (A1) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 1 (A1) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 0 (B1) -> ROOT 1 (A1) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 1 (A1) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 0 (B1) -> ROOT 1 (A1) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 1 (A1) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 0 (B1) -> ROOT 2 (A1) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 2 (A1) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 0 (B1) -> ROOT 2 (A1) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 2 (A1) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 0 (B1) -> ROOT 2 (A1) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 2 (A1) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 0 (B1) -> ROOT 2 (A1) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 2 (A1) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 0 (B1) -> ROOT 2 (A1) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 2 (A1) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 0 (B1) -> ROOT 0 (A2) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 0 (A2) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 0 (B1) -> ROOT 0 (A2) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 0 (A2) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 0 (B1) -> ROOT 0 (A2) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 0 (A2) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 0 (B1) -> ROOT 0 (A2) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 0 (A2) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 0 (B1) -> ROOT 0 (A2) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 0 (A2) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 0 (B1) -> ROOT 1 (A2) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 1 (A2) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 0 (B1) -> ROOT 1 (A2) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 1 (A2) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 0 (B1) -> ROOT 1 (A2) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 1 (A2) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 0 (B1) -> ROOT 1 (A2) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 1 (A2) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 0 (B1) -> ROOT 1 (A2) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 1 (A2) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 1 (A1) -> ROOT 1 (B1) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 1 (A1) -> ROOT 1 (B1) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 1 (A1) -> ROOT 1 (B1) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 1 (A1) -> ROOT 1 (B1) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 1 (A1) -> ROOT 1 (B1) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 1 (A1) -> ROOT 1 (B1) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 1 (A1) -> ROOT 1 (B1) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 1 (A1) -> ROOT 1 (B1) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 1 (A1) -> ROOT 1 (B1) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 1 (A1) -> ROOT 1 (B1) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 2 (A1) -> ROOT 1 (B1) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 2 (A1) -> ROOT 1 (B1) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 2 (A1) -> ROOT 1 (B1) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 2 (A1) -> ROOT 1 (B1) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 2 (A1) -> ROOT 1 (B1) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 2 (A1) -> ROOT 1 (B1) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 2 (A1) -> ROOT 1 (B1) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 2 (A1) -> ROOT 1 (B1) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 2 (A1) -> ROOT 1 (B1) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 2 (A1) -> ROOT 1 (B1) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 0 (A2) -> ROOT 1 (B1) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 0 (A2) -> ROOT 1 (B1) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 0 (A2) -> ROOT 1 (B1) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 0 (A2) -> ROOT 1 (B1) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 0 (A2) -> ROOT 1 (B1) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 0 (A2) -> ROOT 1 (B1) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 0 (A2) -> ROOT 1 (B1) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 0 (A2) -> ROOT 1 (B1) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 0 (A2) -> ROOT 1 (B1) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 0 (A2) -> ROOT 1 (B1) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 1 (B1) -> ROOT 1 (A2) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 1 (B1) -> ROOT 1 (A2) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 1 (B1) -> ROOT 1 (A2) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 1 (B1) -> ROOT 1 (A2) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 1 (B1) -> ROOT 1 (A2) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 1 (B1) -> ROOT 1 (A2) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 1 (B1) -> ROOT 1 (A2) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 1 (B1) -> ROOT 1 (A2) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 1 (B1) -> ROOT 1 (A2) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 1 (B1) -> ROOT 1 (A2) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 0 (B1) -> ROOT 1 (B1) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 1 (B1) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 0 (B1) -> ROOT 1 (B1) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 1 (B1) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 0 (B1) -> ROOT 1 (B1) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 1 (B1) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 0 (B1) -> ROOT 1 (B1) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 1 (B1) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 0 (B1) -> ROOT 1 (B1) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 1 (B1) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 1 (A1) -> ROOT 0 (B2) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 1 (A1) -> ROOT 0 (B2) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 1 (A1) -> ROOT 0 (B2) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 1 (A1) -> ROOT 0 (B2) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 1 (A1) -> ROOT 0 (B2) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 1 (A1) -> ROOT 0 (B2) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 1 (A1) -> ROOT 0 (B2) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 1 (A1) -> ROOT 0 (B2) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 1 (A1) -> ROOT 0 (B2) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 1 (A1) -> ROOT 0 (B2) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 0 (B2) -> ROOT 2 (A1) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 0 (B2) -> ROOT 2 (A1) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 0 (B2) -> ROOT 2 (A1) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 0 (B2) -> ROOT 2 (A1) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 0 (B2) -> ROOT 2 (A1) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 0 (B2) -> ROOT 2 (A1) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 0 (B2) -> ROOT 2 (A1) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 0 (B2) -> ROOT 2 (A1) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 0 (B2) -> ROOT 2 (A1) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 0 (B2) -> ROOT 2 (A1) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 0 (A2) -> ROOT 0 (B2) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 0 (A2) -> ROOT 0 (B2) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 0 (A2) -> ROOT 0 (B2) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 0 (A2) -> ROOT 0 (B2) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 0 (A2) -> ROOT 0 (B2) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 0 (A2) -> ROOT 0 (B2) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 0 (A2) -> ROOT 0 (B2) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 0 (A2) -> ROOT 0 (B2) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 0 (A2) -> ROOT 0 (B2) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 0 (A2) -> ROOT 0 (B2) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 0 (B2) -> ROOT 1 (A2) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 0 (B2) -> ROOT 1 (A2) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 0 (B2) -> ROOT 1 (A2) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 0 (B2) -> ROOT 1 (A2) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 0 (B2) -> ROOT 1 (A2) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 0 (B2) -> ROOT 1 (A2) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 0 (B2) -> ROOT 1 (A2) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 0 (B2) -> ROOT 1 (A2) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 0 (B2) -> ROOT 1 (A2) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 0 (B2) -> ROOT 1 (A2) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 0 (B1) -> ROOT 0 (B2) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 0 (B2) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 0 (B1) -> ROOT 0 (B2) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 0 (B2) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 0 (B1) -> ROOT 0 (B2) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 0 (B2) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 0 (B1) -> ROOT 0 (B2) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 0 (B2) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 0 (B1) -> ROOT 0 (B2) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 0 (B2) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 0 (B2) -> ROOT 1 (B1) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 0 (B2) -> ROOT 1 (B1) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 0 (B2) -> ROOT 1 (B1) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 0 (B2) -> ROOT 1 (B1) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 0 (B2) -> ROOT 1 (B1) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 0 (B2) -> ROOT 1 (B1) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 0 (B2) -> ROOT 1 (B1) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 0 (B2) -> ROOT 1 (B1) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 0 (B2) -> ROOT 1 (B1) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 0 (B2) -> ROOT 1 (B1) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 1 (A1) -> ROOT 1 (B2) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 1 (A1) -> ROOT 1 (B2) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 1 (A1) -> ROOT 1 (B2) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 1 (A1) -> ROOT 1 (B2) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 1 (A1) -> ROOT 1 (B2) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 1 (A1) -> ROOT 1 (B2) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 1 (A1) -> ROOT 1 (B2) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 1 (A1) -> ROOT 1 (B2) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 1 (A1) -> ROOT 1 (B2) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 1 (A1) -> ROOT 1 (B2) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 1 (B2) -> ROOT 2 (A1) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 1 (B2) -> ROOT 2 (A1) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 1 (B2) -> ROOT 2 (A1) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 1 (B2) -> ROOT 2 (A1) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 1 (B2) -> ROOT 2 (A1) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 1 (B2) -> ROOT 2 (A1) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 1 (B2) -> ROOT 2 (A1) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 1 (B2) -> ROOT 2 (A1) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 1 (B2) -> ROOT 2 (A1) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 1 (B2) -> ROOT 2 (A1) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 0 (A2) -> ROOT 1 (B2) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 0 (A2) -> ROOT 1 (B2) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 0 (A2) -> ROOT 1 (B2) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 0 (A2) -> ROOT 1 (B2) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 0 (A2) -> ROOT 1 (B2) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 0 (A2) -> ROOT 1 (B2) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 0 (A2) -> ROOT 1 (B2) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 0 (A2) -> ROOT 1 (B2) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 0 (A2) -> ROOT 1 (B2) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 0 (A2) -> ROOT 1 (B2) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 1 (B2) -> ROOT 1 (A2) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 1 (B2) -> ROOT 1 (A2) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 1 (B2) -> ROOT 1 (A2) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 1 (B2) -> ROOT 1 (A2) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 1 (B2) -> ROOT 1 (A2) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 1 (B2) -> ROOT 1 (A2) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 1 (B2) -> ROOT 1 (A2) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 1 (B2) -> ROOT 1 (A2) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 1 (B2) -> ROOT 1 (A2) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 1 (B2) -> ROOT 1 (A2) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 0 (B1) -> ROOT 1 (B2) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 1 (B2) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 0 (B1) -> ROOT 1 (B2) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 1 (B2) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 0 (B1) -> ROOT 1 (B2) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 1 (B2) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 0 (B1) -> ROOT 1 (B2) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 1 (B2) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 0 (B1) -> ROOT 1 (B2) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 0 (B1) -> ROOT 1 (B2) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 1 (B2) -> ROOT 1 (B1) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 1 (B2) -> ROOT 1 (B1) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 1 (B2) -> ROOT 1 (B1) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 1 (B2) -> ROOT 1 (B1) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 1 (B2) -> ROOT 1 (B1) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 1 (B2) -> ROOT 1 (B1) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 1 (B2) -> ROOT 1 (B1) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 1 (B2) -> ROOT 1 (B1) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 1 (B2) -> ROOT 1 (B1) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 1 (B2) -> ROOT 1 (B1) EINSTEIN B (LEN)......................................PASSED
+    CC ROOT 0 (B2) -> ROOT 1 (B2) OSCILLATOR STRENGTH (LEN)...............................PASSED
+    CCSD ROOT 0 (B2) -> ROOT 1 (B2) OSCILLATOR STRENGTH (LEN).............................PASSED
+    CC ROOT 0 (B2) -> ROOT 1 (B2) ROTARY STRENGTH (LEN)...................................PASSED
+    CCSD ROOT 0 (B2) -> ROOT 1 (B2) ROTARY STRENGTH (LEN).................................PASSED
+    CC ROOT 0 (B2) -> ROOT 1 (B2) ROTARY STRENGTH (VEL)...................................PASSED
+    CCSD ROOT 0 (B2) -> ROOT 1 (B2) ROTARY STRENGTH (VEL).................................PASSED
+    CC ROOT 0 (B2) -> ROOT 1 (B2) EINSTEIN A (LEN)........................................PASSED
+    CCSD ROOT 0 (B2) -> ROOT 1 (B2) EINSTEIN A (LEN)......................................PASSED
+    CC ROOT 0 (B2) -> ROOT 1 (B2) EINSTEIN B (LEN)........................................PASSED
+    CCSD ROOT 0 (B2) -> ROOT 1 (B2) EINSTEIN B (LEN)......................................PASSED
+
+    Psi4 stopped on: Wednesday, 30 March 2022 07:35PM
+    Psi4 wall time for execution: 0:00:04.82
+
+*** Psi4 exiting successfully. Buy a developer a beer!

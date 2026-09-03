@@ -1,0 +1,99 @@
+
+    -----------------------------------------------------------------------
+          Psi4: An Open-Source Ab Initio Electronic Structure Package
+                               Psi4 1.1rc3.dev5 
+
+                         Git: Rev {master} 3fbd859 
+
+
+    R. M. Parrish, L. A. Burns, D. G. A. Smith, A. C. Simmonett,
+    A. E. DePrince III, E. G. Hohenstein, U. Bozkaya, A. Yu. Sokolov,
+    R. Di Remigio, R. M. Richard, J. F. Gonthier, A. M. James,
+    H. R. McAlexander, A. Kumar, M. Saitow, X. Wang, B. P. Pritchard,
+    P. Verma, H. F. Schaefer III, K. Patkowski, R. A. King, E. F. Valeev,
+    F. A. Evangelista, J. M. Turney, T. D. Crawford, and C. D. Sherrill,
+    J. Chem. Theory Comput. in press (2017).
+    (doi: 10.1021/acs.jctc.7b00174)
+
+    -----------------------------------------------------------------------
+
+
+    Psi4 started on: Monday, 15 May 2017 03:37PM
+
+    Process ID:  14578
+    PSIDATADIR: /home/psilocaluser/gits/hrw-direct/objdir4/stage/usr/local/psi4/share/psi4
+    Memory:     500.0 MiB
+    Threads:    1
+    
+  ==> Input File <==
+
+--------------------------------------------------------------------------
+#! A demonstration of mixed Cartesian/ZMatrix geometry specification, using variables, for
+#! the benzene-hydronium complex.  Atoms can be placed using ZMatrix coordinates, whether they belong
+#! to the same fragment or not.  Note that the Cartesian specification must come before the ZMatrix entries
+#! because the former define absolute positions, while the latter are relative.
+
+refENuc   = 268.617178206572646  #TEST
+
+molecule dimer {
+1 1
+# This part is just a normal Cartesian geometry specification for benzene
+C          0.710500000000    -0.794637665924    -1.230622098778
+C          1.421000000000    -0.794637665924     0.000000000000
+C          0.710500000000    -0.794637665924     1.230622098778
+C         -0.710500000000    -0.794637665924     1.230622098778
+H          1.254500000000    -0.794637665924    -2.172857738095
+H         -1.254500000000    -0.794637665924     2.172857738095
+C         -0.710500000000    -0.794637665924    -1.230622098778
+C         -1.421000000000    -0.794637665924     0.000000000000
+H          2.509000000000    -0.794637665924     0.000000000000
+H          1.254500000000    -0.794637665924     2.172857738095
+H         -1.254500000000    -0.794637665924    -2.172857738095
+H         -2.509000000000    -0.794637665924     0.000000000000
+# And the hydronium part is specified using a zmatrix, referencing the benzene coordinates
+X  1  CC  3  30   2  A2
+O  13 R   1  90   2  90
+H  14 OH  13 TDA  1  0
+H  14 OH  15 TDA  13 A1
+H  14 OH  15 TDA  13 -A1
+
+CC    = 1.421
+CH    = 1.088
+A1    = 120.0
+A2    = 180.0
+OH    = 1.05
+R     = 4.0
+units angstrom
+}
+
+dimer.update_geometry()
+dimer.print_out()
+compare_values(refENuc, dimer.nuclear_repulsion_energy(), 9, "Nuclear repulsion energy")   #TEST
+--------------------------------------------------------------------------
+    Molecular point group: cs
+    Full point group: C3v
+
+    Geometry (in Angstrom), charge = 1, multiplicity = 1:
+
+       Center              X                  Y                   Z               Mass       
+    ------------   -----------------  -----------------  -----------------  -----------------
+           C          0.710500000000    -0.794637665924    -1.230622098778    12.000000000000
+           C          1.421000000000    -0.794637665924     0.000000000000    12.000000000000
+           C          0.710500000000    -0.794637665924     1.230622098778    12.000000000000
+           C         -0.710500000000    -0.794637665924     1.230622098778    12.000000000000
+           H          1.254500000000    -0.794637665924    -2.172857738095     1.007825032070
+           H         -1.254500000000    -0.794637665924     2.172857738095     1.007825032070
+           C         -0.710500000000    -0.794637665924    -1.230622098778    12.000000000000
+           C         -1.421000000000    -0.794637665924     0.000000000000    12.000000000000
+           H          2.509000000000    -0.794637665924     0.000000000000     1.007825032070
+           H          1.254500000000    -0.794637665924     2.172857738095     1.007825032070
+           H         -1.254500000000    -0.794637665924    -2.172857738095     1.007825032070
+           H         -2.509000000000    -0.794637665924     0.000000000000     1.007825032070
+           O          0.000000000000     3.205362334076     0.000000000000    15.994914619560
+           H          0.494974746831     3.555362334076    -0.857321409974     1.007825032070
+           H          0.494974746831     3.555362334076     0.857321409974     1.007825032070
+           H         -0.989949493661     3.555362334076     0.000000000000     1.007825032070
+
+	Nuclear repulsion energy..........................................PASSED
+
+*** Psi4 exiting successfully. Buy a developer a beer!

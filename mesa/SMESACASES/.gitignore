@@ -1,0 +1,14 @@
+# Runtime scratch and local logs are not supporting-information data.
+psi.*.clean
+timer.dat
+*.log
+*.out
+*.aux
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+__pycache__/
+*.py[cod]
+
+# Ad-hoc editor copies are not canonical inputs or results.
+* copy.*

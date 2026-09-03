@@ -1,0 +1,133 @@
+name: Docs
+
+on:
+  pull_request:
+  merge_group:
+
+jobs:
+
+  docs:
+    strategy:
+      matrix:
+        cfg:
+          - runs-on: ubuntu-latest
+            python-version: "3.10"
+    name: Propose Docs
+    runs-on: ${{ matrix.cfg.runs-on }}
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+
+    # fetch-depth: 0 gets git history so Psi4 version computable
+    - name: Checkout
+      if: ${{ github.repository == 'psi4/psi4' }}
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        path: code
+
+    - name: Checkout psi4/psi4docs Repo
+      if: ${{ github.repository == 'psi4/psi4' }}
+      uses: actions/checkout@v4
+      with:
+        repository: psi4/psi4docs
+        path: docs
+        ref: master
+
+    - name: Write Conda environment files
+      run: |
+        echo "::group::Prepare OS Python"
+        which python
+        python --version
+        pip install PyYAML
+        echo "::endgroup::"
+        #
+        code/conda/psi4-path-advisor.py \
+          env \
+          --name p4docs \
+          --python ${{ matrix.cfg.python-version }} \
+          --disable addons \
+          --offline-conda
+        #
+        echo "::group::View Env Spec File for Conda"
+        printf "\n<<<  env_p4docs.yaml  >>>\n"
+        pygmentize -g -O style=friendly,linenos=1 env_p4docs.yaml
+        echo "::endgroup::"
+
+    - name: Create Conda Environment
+      if: ${{ github.repository == 'psi4/psi4' }}
+      uses: conda-incubator/setup-miniconda@v3
+      with:
+        activate-environment: p4docs
+        add-pip-as-python-dependency: true
+        auto-activate-base: false
+        channels: conda-forge
+        environment-file: env_p4docs.yaml
+        show-channel-urls: true
+
+    - name: Environment Information
+      if: ${{ github.repository == 'psi4/psi4' }}
+      run: |
+        conda info
+        conda list
+        which conda python cmake $CXX
+
+    # docs are finally Ninja ready
+    - name: Configure with CMake (Conda Gnu + MKL)
+      if: ${{ github.repository == 'psi4/psi4' }}
+      working-directory: ./code
+      run: |
+        conda/psi4-path-advisor.py \
+          cache \
+          --objdir objdir \
+          --insist
+        echo "::group::View Cache File for CMake"
+        printf "\n<<<  cache_p4docs@objdir.cmake  >>>\n"
+        pygmentize -g -O style=colorful,linenos=1 cache_p4docs@objdir.cmake
+        echo "::endgroup::"
+        #
+        cmake \
+          -S. \
+          -B objdir \
+          -G Ninja \
+          -C ${{ github.workspace }}/code/cache_p4docs@objdir.cmake \
+          -D CMAKE_BUILD_TYPE=Debug \
+          -D CMAKE_CXX_FLAGS="-O0" \
+          -D SPHINXMAN_STRICT=ON
+
+    - name: Compile Psi4
+      if: ${{ github.repository == 'psi4/psi4' }}
+      working-directory: ./code
+      run: CMAKE_BUILD_PARALLEL_LEVEL=1 cmake --build objdir
+
+    - name: Compile & Pack Docs
+      if: ${{ github.repository == 'psi4/psi4' }}
+      working-directory: ./code
+      run: |
+        cmake --build objdir --target sphinxman
+        cd objdir/doc/sphinxman
+        tar -zcf sphinxman.tar.gz html/
+
+    - name: Archive Docs Tarball
+      if: (success() || failure()) && ${{ github.repository == 'psi4/psi4' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: sphinxman-html
+        path: |
+          code/objdir/doc/sphinxman/sphinxman.tar.gz
+        retention-days: 7
+
+    - name: Compare Docs (PR generated vs psi4/psi4docs)
+      if: ${{ github.repository == 'psi4/psi4' }}
+      working-directory: ./docs/sphinxman
+      id: compare-psi4docs
+      run: |
+        cp -pR ../../code/objdir/doc/sphinxman/html .
+        rm -rf master
+        mv html master
+        echo "::group::Selective Git Diff"
+        git diff --color-words -I"Last updated on" -I"psi4/tree" -I"documentation_options"
+        echo "::endgroup::"
+

@@ -1,0 +1,11 @@
+BASIS_SET = "LANL2DZ"
+REFERENCE = "UHF"
+GUESS = "GWH"
+
+V3_Scalene = psi4.geometry("""
+0 4
+V   0.000000   0.000000   0.000000
+V   2.200000   0.000000   0.000000
+V   0.500000   2.200000   0.000000
+symmetry c1
+""")

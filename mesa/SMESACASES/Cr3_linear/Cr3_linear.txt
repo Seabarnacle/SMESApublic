@@ -1,0 +1,8 @@
+BASIS_SET = "LANL2DZ"
+REFERENCE = "UHF"
+Cr3_linear = psi4.geometry("""
+0 1
+Cr  0.0  0.0  -2.00
+Cr  0.0  0.0   0.00
+Cr  0.0  0.0   2.00
+""")

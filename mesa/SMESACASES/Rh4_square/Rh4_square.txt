@@ -1,0 +1,12 @@
+BASIS_SET = "LANL2DZ"
+REFERENCE = "RHF"
+Rh4_square = psi4.geometry("""
+0 1
+Rh   1.35000   1.35000   0.00000
+Rh  -1.35000   1.35000   0.00000
+Rh  -1.35000  -1.35000   0.00000
+Rh   1.35000  -1.35000   0.00000
+no_com
+no_reorient
+units angstrom
+""")

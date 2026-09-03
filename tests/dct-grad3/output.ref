@@ -1,0 +1,616 @@
+
+    -----------------------------------------------------------------------
+          Psi4: An Open-Source Ab Initio Electronic Structure Package
+                               Psi4 1.1rc3.dev5 
+
+                         Git: Rev {master} 3fbd859 
+
+
+    R. M. Parrish, L. A. Burns, D. G. A. Smith, A. C. Simmonett,
+    A. E. DePrince III, E. G. Hohenstein, U. Bozkaya, A. Yu. Sokolov,
+    R. Di Remigio, R. M. Richard, J. F. Gonthier, A. M. James,
+    H. R. McAlexander, A. Kumar, M. Saitow, X. Wang, B. P. Pritchard,
+    P. Verma, H. F. Schaefer III, K. Patkowski, R. A. King, E. F. Valeev,
+    F. A. Evangelista, J. M. Turney, T. D. Crawford, and C. D. Sherrill,
+    J. Chem. Theory Comput. in press (2017).
+    (doi: 10.1021/acs.jctc.7b00174)
+
+    -----------------------------------------------------------------------
+
+
+    Psi4 started on: Monday, 15 May 2017 03:35PM
+
+    Process ID:  13445
+    PSIDATADIR: /home/psilocaluser/gits/hrw-direct/objdir4/stage/usr/local/psi4/share/psi4
+    Memory:     500.0 MiB
+    Threads:    1
+    
+  ==> Input File <==
+
+--------------------------------------------------------------------------
+#! Restricted DF-DCFT ODC-12 gradient for ethylene with cc-pVDZ/cc-pVDZ-RI standard/auxiliary basis set
+
+ref_vals_aonone = [                                                             
+                [ 0.000000000000,     0.000000000000,    -0.087812168179],
+                [ 0.000000000000,     0.000000000000,     0.087812168179],
+                [ 0.000000000000,    -0.074677395781,     0.046776131677],
+                [ 0.000000000000,     0.074677395781,     0.046776131677],
+                [ 0.000000000000,     0.074677395781,    -0.046776131677],
+                [ 0.000000000000,    -0.074677395781,    -0.046776131677]      
+                ]                                                             
+ref_aonone = psi4.Matrix(6, 3)                                                
+ref_aonone.set(ref_vals_aonone)                                               
+
+molecule c2h4{
+symmetry d2h
+0 1
+C
+C 1 RCC
+H 1 RCH 2 AHCC
+H 1 RCH 2 AHCC 3 D1
+H 2 RCH 1 AHCC 4 D2
+H 2 RCH 1 AHCC 4 D1
+
+RCC = 1.35 
+RCH = 1.00
+AHCC = 120.0
+D1 = 180.0
+D2 = 0.0
+}
+
+set {
+  basis cc-pvdz
+  dcft_type df
+  df_basis_dcft cc-pvdz-ri
+  dcft_guess mp2
+  algorithm simultaneous
+  dcft_functional odc-12
+  diis_min_vecs 1
+  diis_start_convergence 1.0E-1
+  r_convergence 1.0E-10
+  maxiter 50
+}
+
+set reference rhf
+set ao_basis none
+grad = gradient('dcft')
+compare_matrices(ref_aonone, grad, 8, "DF-RODC-12 analytic gradient (ao_basis=none)")  #TEST
+clean()
+
+--------------------------------------------------------------------------
+gradient() will perform analytic gradient computation.
+
+*** tstart() called on psinet
+*** at Mon May 15 15:35:16 2017
+
+   => Loading Basis Set <=
+
+    Name: CC-PVDZ
+    Role: ORBITAL
+    Keyword: BASIS
+    atoms 1-2 entry C          line   130 file /home/psilocaluser/gits/hrw-direct/objdir4/stage/usr/local/psi4/share/psi4/basis/cc-pvdz.gbs 
+    atoms 3-6 entry H          line    20 file /home/psilocaluser/gits/hrw-direct/objdir4/stage/usr/local/psi4/share/psi4/basis/cc-pvdz.gbs 
+
+
+         ---------------------------------------------------------
+                                   SCF
+            by Justin Turney, Rob Parrish, and Andy Simmonett
+                              RHF Reference
+                        1 Threads,    500 MiB Core
+         ---------------------------------------------------------
+
+  ==> Geometry <==
+
+    Molecular point group: d2h
+    Full point group: D2h
+
+    Geometry (in Angstrom), charge = 0, multiplicity = 1:
+
+       Center              X                  Y                   Z               Mass       
+    ------------   -----------------  -----------------  -----------------  -----------------
+           C          0.000000000000     0.000000000000    -0.675000000000    12.000000000000
+           C          0.000000000000     0.000000000000     0.675000000000    12.000000000000
+           H          0.000000000000     0.866025403784    -1.175000000000     1.007825032070
+           H          0.000000000000    -0.866025403784    -1.175000000000     1.007825032070
+           H          0.000000000000    -0.866025403784     1.175000000000     1.007825032070
+           H          0.000000000000     0.866025403784     1.175000000000     1.007825032070
+
+  Running in d2h symmetry.
+
+  Rotational constants: A =      5.57558  B =      1.02163  C =      0.86342 [cm^-1]
+  Rotational constants: A = 167151.70091  B =  30627.70574  C =  25884.76322 [MHz]
+  Nuclear repulsion =   34.453060270908090
+
+  Charge       = 0
+  Multiplicity = 1
+  Electrons    = 16
+  Nalpha       = 8
+  Nbeta        = 8
+
+  ==> Algorithm <==
+
+  SCF Algorithm Type is PK.
+  DIIS disabled.
+  MOM disabled.
+  Fractional occupation disabled.
+  Guess Type is SAD.
+  Energy threshold   = 1.00e-10
+  Density threshold  = 1.00e-10
+  Integral threshold = 0.00e+00
+
+  ==> Primary Basis <==
+
+  Basis Set: CC-PVDZ
+    Blend: CC-PVDZ
+    Number of shells: 24
+    Number of basis function: 48
+    Number of Cartesian functions: 50
+    Spherical Harmonics?: true
+    Max angular momentum: 2
+
+  ==> Pre-Iterations <==
+
+   -------------------------------------------------------
+    Irrep   Nso     Nmo     Nalpha   Nbeta   Ndocc  Nsocc
+   -------------------------------------------------------
+     Ag        11      11       0       0       0       0
+     B1g        2       2       0       0       0       0
+     B2g        4       4       0       0       0       0
+     B3g        7       7       0       0       0       0
+     Au         2       2       0       0       0       0
+     B1u       11      11       0       0       0       0
+     B2u        7       7       0       0       0       0
+     B3u        4       4       0       0       0       0
+   -------------------------------------------------------
+    Total      48      48       8       8       8       0
+   -------------------------------------------------------
+
+  ==> Integral Setup <==
+
+  Using in-core PK algorithm.
+   Calculation information:
+      Number of atoms:                   6
+      Number of AO shells:              24
+      Number of primitives:             64
+      Number of atomic orbitals:        50
+      Number of basis functions:        48
+
+      Integral cutoff                 1.00e-12
+      Number of threads:                 1
+
+  Performing in-core PK
+  Using 1384152 doubles for integral storage.
+  We computed 45150 shell quartets total.
+  Whereas there are 45150 unique shell quartets.
+  ==> DiskJK: Disk-Based J/K Matrices <==
+
+    J tasked:                  Yes
+    K tasked:                  Yes
+    wK tasked:                  No
+    Memory (MB):               375
+    Schwarz Cutoff:          1E-12
+
+    OpenMP threads:              1
+  Minimum eigenvalue in the overlap matrix is 5.1200294996E-03.
+  Using Symmetric Orthogonalization.
+
+  SCF Guess: Superposition of Atomic Densities via on-the-fly atomic UHF.
+
+  ==> Iterations <==
+
+                        Total Energy        Delta E     RMS |[F,P]|
+
+   @RHF iter   0:   -79.23792163108217   -7.92379e+01   1.43469e-01 
+   @RHF iter   1:   -77.99047937535146    1.24744e+00   9.70107e-03 
+   @RHF iter   2:   -78.01409008436866   -2.36107e-02   2.27048e-03 
+   @RHF iter   3:   -78.01562822052054   -1.53814e-03   7.05764e-04 
+   @RHF iter   4:   -78.01576337876784   -1.35158e-04   2.12825e-04 
+   @RHF iter   5:   -78.01577707512079   -1.36964e-05   7.34781e-05 
+   @RHF iter   6:   -78.01577858972799   -1.51461e-06   2.39517e-05 
+   @RHF iter   7:   -78.01577876698303   -1.77255e-07   8.57909e-06 
+   @RHF iter   8:   -78.01577878852450   -2.15415e-08   2.89219e-06 
+   @RHF iter   9:   -78.01577879120910   -2.68460e-09   1.05462e-06 
+   @RHF iter  10:   -78.01577879154954   -3.40435e-10   3.60757e-07 
+   @RHF iter  11:   -78.01577879159314   -4.35989e-11   1.32988e-07 
+   @RHF iter  12:   -78.01577879159885   -5.71276e-12   4.57949e-08 
+   @RHF iter  13:   -78.01577879159957   -7.24754e-13   1.70129e-08 
+   @RHF iter  14:   -78.01577879159956    1.42109e-14   5.88045e-09 
+   @RHF iter  15:   -78.01577879159962   -5.68434e-14   2.19739e-09 
+   @RHF iter  16:   -78.01577879159960    1.42109e-14   7.61765e-10 
+   @RHF iter  17:   -78.01577879159963   -2.84217e-14   2.85895e-10 
+   @RHF iter  18:   -78.01577879159967   -4.26326e-14   9.94042e-11 
+
+  ==> Post-Iterations <==
+
+    Orbital Energies (a.u.)
+    -----------------------
+
+    Doubly Occupied:                                                      
+
+       1Ag   -11.217935     1B1u  -11.216402     2Ag    -1.041251  
+       2B1u   -0.822001     1B2u   -0.670604     3Ag    -0.583354  
+       1B3g   -0.536687     1B3u   -0.367325  
+
+    Virtual:                                                              
+
+       1B2g    0.165017     4Ag     0.209751     2B2u    0.243974  
+       3B1u    0.250579     2B3g    0.304136     4B1u    0.461763  
+       5Ag     0.574497     3B2u    0.635442     2B3u    0.694896  
+       6Ag     0.742383     2B2g    0.807066     5B1u    0.824469  
+       4B2u    0.892944     3B3g    0.971826     6B1u    0.981564  
+       7Ag     1.036587     1B1g    1.141880     7B1u    1.217383  
+       3B3u    1.268523     4B3g    1.295617     1Au     1.309807  
+       8Ag     1.658924     5B3g    1.775242     5B2u    1.808889  
+       3B2g    1.864454     9Ag     1.864955     8B1u    1.932918  
+       6B2u    2.006502     4B3u    2.030863     2B1g    2.040308  
+       4B2g    2.224181     9B1u    2.283942     2Au     2.473212  
+      10Ag     2.621460     6B3g    2.626790    10B1u    2.745561  
+      11Ag     3.013265     7B2u    3.028435    11B1u    3.391012  
+       7B3g    3.622036  
+
+    Final Occupation by Irrep:
+             Ag   B1g   B2g   B3g    Au   B1u   B2u   B3u 
+    DOCC [     3,    0,    0,    1,    0,    2,    1,    1 ]
+
+  Energy converged.
+
+  @RHF Final Energy:   -78.01577879159967
+
+   => Energetics <=
+
+    Nuclear Repulsion Energy =             34.4530602709080895
+    One-Electron Energy =                -172.0265606237962288
+    Two-Electron Energy =                  59.5577215612884672
+    DFT Exchange-Correlation Energy =       0.0000000000000000
+    Empirical Dispersion Energy =           0.0000000000000000
+    PCM Polarization Energy =               0.0000000000000000
+    EFP Energy =                            0.0000000000000000
+    Total Energy =                        -78.0157787915996721
+
+
+
+Properties will be evaluated at   0.000000,   0.000000,   0.000000 Bohr
+
+Properties computed using the SCF density matrix
+
+  Nuclear Dipole Moment: (a.u.)
+     X:     0.0000      Y:     0.0000      Z:    -0.0000
+
+  Electronic Dipole Moment: (a.u.)
+     X:     0.0000      Y:     0.0000      Z:     0.0000
+
+  Dipole Moment: (a.u.)
+     X:     0.0000      Y:     0.0000      Z:    -0.0000     Total:     0.0000
+
+  Dipole Moment: (Debye)
+     X:     0.0000      Y:     0.0000      Z:    -0.0000     Total:     0.0000
+
+
+*** tstop() called on psinet at Mon May 15 15:35:17 2017
+Module time:
+	user time   =       0.88 seconds =       0.01 minutes
+	system time =       0.03 seconds =       0.00 minutes
+	total time  =          1 seconds =       0.02 minutes
+Total time:
+	user time   =       0.88 seconds =       0.01 minutes
+	system time =       0.03 seconds =       0.00 minutes
+	total time  =          1 seconds =       0.02 minutes
+   => Loading Basis Set <=
+
+    Name: CC-PVDZ-RI
+    Role: RIFIT
+    Keyword: DF_BASIS_DCFT
+    atoms 1-2 entry C          line   158 file /home/psilocaluser/gits/hrw-direct/objdir4/stage/usr/local/psi4/share/psi4/basis/cc-pvdz-ri.gbs 
+    atoms 3-6 entry H          line    18 file /home/psilocaluser/gits/hrw-direct/objdir4/stage/usr/local/psi4/share/psi4/basis/cc-pvdz-ri.gbs 
+
+   => Loading Basis Set <=
+
+    Name: (CC-PVDZ AUX)
+    Role: JKFIT
+    Keyword: DF_BASIS_SCF
+    atoms 1-2 entry C          line   120 file /home/psilocaluser/gits/hrw-direct/objdir4/stage/usr/local/psi4/share/psi4/basis/cc-pvdz-jkfit.gbs 
+    atoms 3-6 entry H          line    50 file /home/psilocaluser/gits/hrw-direct/objdir4/stage/usr/local/psi4/share/psi4/basis/cc-pvdz-jkfit.gbs 
+
+ MINTS: Wrapper to libmints.
+   by Justin Turney
+
+   Calculation information:
+      Number of threads:                 1
+      Number of atoms:                   6
+      Number of AO shells:              24
+      Number of SO shells:               9
+      Number of primitives:             64
+      Number of atomic orbitals:        50
+      Number of basis functions:        48
+
+      Number of irreps:                  8
+      Integral cutoff                 0.00e+00
+      Number of functions per irrep: [  11    2    4    7    2   11    7    4 ]
+
+ OEINTS: Overlap, kinetic, potential, dipole, and quadrupole integrals
+         stored in file 35.
+
+      Computing two-electron integrals...done
+      Computed 93892 non-zero two-electron integrals.
+        Stored in file 33.
+
+
+*** tstart() called on psinet
+*** at Mon May 15 15:35:17 2017
+
+
+
+	***********************************************************************************
+	*                        Density Cumulant Functional Theory                       *
+	*                by Alexander Sokolov, Andy Simmonett, and Xiao Wang              *
+	***********************************************************************************
+
+
+	                  ************************************************
+	                  *        Density Fitting Module in DCFT        *
+	                  *                by Xiao Wang                  *
+	                  ************************************************
+
+	 => Sizing <=
+
+	  Memory   =         500 MB
+	  Threads  =           1
+	  nn       =          48
+	  nQ       =         168
+
+	 => Primary Basis <=
+
+  Basis Set: CC-PVDZ
+    Blend: CC-PVDZ
+    Number of shells: 24
+    Number of basis function: 48
+    Number of Cartesian functions: 50
+    Spherical Harmonics?: true
+    Max angular momentum: 2
+
+	 => Auxiliary Basis <=
+
+  Basis Set: CC-PVDZ-RI
+    Blend: CC-PVDZ-RI
+    Number of shells: 60
+    Number of basis function: 168
+    Number of Cartesian functions: 192
+    Spherical Harmonics?: true
+    Max angular momentum: 3
+
+	 => Memory Requirement <=
+
+	Minimum Memory required                 :     12.04 MB 
+	Memory available                        :    500.00 MB 
+
+
+
+	Transforming two-electron integrals (transformation type: restricted)...
+	Computing MP2 amplitude guess...
+
+	*Total Hartree-Fock energy        =  -78.015778791599672
+	 Total MP2 correlation energy     =   -0.276209629486278
+	*Total MP2 energy                 =  -78.291988421085946
+
+	DCFT Functional:    		 ODC-12
+	DCFT Type:          		 DF
+	Algorithm:          		 SIMULTANEOUS
+	AO-Basis Integrals: 		 NONE
+
+	*=================================================================================*
+	* Cycle   Max Orb Grad    RMS Lambda Error   delta E        Total Energy     DIIS *
+	*---------------------------------------------------------------------------------*
+	* 1        3.421e-02         1.161e-03     -7.204e-02    -78.364031344450936  S   *
+	* 2        9.763e-03         3.735e-04      2.051e-02    -78.343525266330417  S/E *
+	* 3        4.433e-03         1.174e-04      1.404e-02    -78.329482723276044  S/E *
+	* 4        6.720e-04         5.283e-05      1.203e-03    -78.328279813163576  S/E *
+	* 5        1.950e-04         1.480e-05      5.685e-04    -78.327711265070647  S/E *
+	* 6        4.258e-05         4.013e-06      3.389e-05    -78.327677374834664  S/E *
+	* 7        1.146e-05         8.299e-07     -5.455e-05    -78.327731927290145  S/E *
+	* 8        1.610e-06         1.926e-07      4.910e-06    -78.327727017629158  S/E *
+	* 9        3.346e-07         5.230e-08     -8.143e-07    -78.327727831957660  S/E *
+	* 10       1.485e-07         1.626e-08     -2.459e-08    -78.327727856544882  S/E *
+	* 11       6.183e-08         5.139e-09     -6.645e-08    -78.327727922989965  S/E *
+	* 12       1.580e-08         1.447e-09     -2.958e-08    -78.327727952568381  S/E *
+	* 13       7.565e-09         4.619e-10     -1.374e-08    -78.327727966310590  S/E *
+	* 14       1.722e-09         1.849e-10     -1.030e-09    -78.327727967340564  S/E *
+	* 15       6.257e-10         5.505e-11     -5.425e-10    -78.327727967883035  S/E *
+	* 16       2.728e-10         1.889e-11      3.233e-11    -78.327727967850706  S/E *
+	* 17       5.104e-11         5.571e-12     -9.157e-11    -78.327727967942280  S/E *
+	*=================================================================================*
+
+	*DF-ODC-12 SCF Energy                                 =     -77.651377830133271
+	*DF-ODC-12 Lambda Energy                              =      -0.676350137809007
+	*DF-ODC-12 Total Energy                               =     -78.327727967942280
+
+	Orbital occupations:
+		Doubly occupied orbitals
+		   1Ag       1.9998     1B1u      1.9998     2Ag       1.9762     2B1u      1.9682  
+		   1B2u      1.9654     1B3g      1.9605     3Ag       1.9583     1B3u      1.8938  
+		
+
+		Virtual orbitals
+		   1B2g      0.0784     3B1u      0.0135     2B2u      0.0124     2B2g      0.0122  
+		   4Ag       0.0121     4B1u      0.0114     2B3g      0.0097     5B1u      0.0096  
+		   3B2u      0.0086     4B2u      0.0082     2B3u      0.0082     1B1g      0.0077  
+		   5Ag       0.0077     6Ag       0.0075     6B1u      0.0069     7Ag       0.0068  
+		   3B3u      0.0065     3B3g      0.0060     1Au       0.0053     7B1u      0.0044  
+		   4B3g      0.0037     8Ag       0.0030     9Ag       0.0025     8B1u      0.0025  
+		   5B2u      0.0024     6B2u      0.0023     3B2g      0.0021     5B3g      0.0019  
+		   9B1u      0.0015     6B3g      0.0011     2B1g      0.0010     7B2u      0.0010  
+		  10Ag       0.0010     4B3u      0.0010     4B2g      0.0009    10B1u      0.0009  
+		  11Ag       0.0008    11B1u      0.0007     7B3g      0.0006     2Au       0.0006  
+		
+
+
+*** tstop() called on psinet at Mon May 15 15:35:20 2017
+Module time:
+	user time   =       2.11 seconds =       0.04 minutes
+	system time =       0.41 seconds =       0.01 minutes
+	total time  =          3 seconds =       0.05 minutes
+Total time:
+	user time   =       3.37 seconds =       0.06 minutes
+	system time =       0.45 seconds =       0.01 minutes
+	total time  =          4 seconds =       0.07 minutes
+
+*** tstart() called on psinet
+*** at Mon May 15 15:35:20 2017
+
+
+
+	***********************************************************************************
+	*                           DCFT Analytic Gradients Code                          *
+	*                by Alexander Sokolov, Andy Simmonett, and Xiao Wang              *
+	***********************************************************************************
+
+	 Computing energy-weighted density matrix from one- and two-particle densities...
+	Pre-Presorting MO-basis TPDM: AB.
+
+	Sorting File: MO TPDM (AA|AA) nbuckets = 1
+	Pre-Presorting MO-basis TPDM: AA and BB.
+
+	Sorting File: MO TPDM (AA|AA) TEMP nbuckets = 1
+	nbuckets = 1
+
+
+*** tstop() called on psinet at Mon May 15 15:35:21 2017
+Module time:
+	user time   =       0.98 seconds =       0.02 minutes
+	system time =       0.04 seconds =       0.00 minutes
+	total time  =          1 seconds =       0.02 minutes
+Total time:
+	user time   =       4.35 seconds =       0.07 minutes
+	system time =       0.49 seconds =       0.01 minutes
+	total time  =          5 seconds =       0.08 minutes
+  Cartesian Displacement SALCs
+  By SALC:
+  Number of SALCs: 3, nirreps: 1
+  Project out translations: False
+  Project out rotations: False
+	irrep = 0, ncomponent = 2
+		0: atom 0, direction z, coef 0.707107
+		1: atom 1, direction z, coef -0.707107
+	irrep = 0, ncomponent = 4
+		0: atom 2, direction y, coef 0.500000
+		1: atom 3, direction y, coef -0.500000
+		2: atom 4, direction y, coef -0.500000
+		3: atom 5, direction y, coef 0.500000
+	irrep = 0, ncomponent = 4
+		0: atom 2, direction z, coef 0.500000
+		1: atom 3, direction z, coef 0.500000
+		2: atom 4, direction z, coef -0.500000
+		3: atom 5, direction z, coef -0.500000
+
+  By Atomic Center:
+  Number of atomic centers: 6
+   Atomic Center 0:
+	x component, size = 0
+	y component, size = 0
+	z component, size = 1
+		0: salc 0, irrep 0, coef 0.707107
+   Atomic Center 1:
+	x component, size = 0
+	y component, size = 0
+	z component, size = 1
+		0: salc 0, irrep 0, coef -0.707107
+   Atomic Center 2:
+	x component, size = 0
+	y component, size = 1
+		0: salc 1, irrep 0, coef 0.500000
+	z component, size = 1
+		0: salc 2, irrep 0, coef 0.500000
+   Atomic Center 3:
+	x component, size = 0
+	y component, size = 1
+		0: salc 1, irrep 0, coef -0.500000
+	z component, size = 1
+		0: salc 2, irrep 0, coef 0.500000
+   Atomic Center 4:
+	x component, size = 0
+	y component, size = 1
+		0: salc 1, irrep 0, coef -0.500000
+	z component, size = 1
+		0: salc 2, irrep 0, coef -0.500000
+   Atomic Center 5:
+	x component, size = 0
+	y component, size = 1
+		0: salc 1, irrep 0, coef 0.500000
+	z component, size = 1
+		0: salc 2, irrep 0, coef -0.500000
+
+    Molecular point group: d2h
+    Full point group: D2h
+
+    Geometry (in Bohr), charge = 0, multiplicity = 1:
+
+       Center              X                  Y                   Z       
+    ------------   -----------------  -----------------  -----------------
+           C          0.000000000000     0.000000000000    -1.275565139698
+           C          0.000000000000     0.000000000000     1.275565139698
+           H          0.000000000000     1.636550837274    -2.220428206141
+           H          0.000000000000    -1.636550837274    -2.220428206141
+           H          0.000000000000    -1.636550837274     2.220428206141
+           H          0.000000000000     1.636550837274     2.220428206141
+
+	Starting first half-transformation.
+	Sorting half-transformed TPDM.
+	First half integral transformation complete.
+
+
+  -Nuclear Repulsion Energy 1st Derivatives:
+     Atom            X                  Y                   Z
+    ------   -----------------  -----------------  -----------------
+       1        0.000000000000     0.000000000000     4.580647943921
+       2        0.000000000000     0.000000000000    -4.580647943921
+       3        0.000000000000    -1.738630267953     1.281937791043
+       4       -0.000000000000     1.738630267953     1.281937791043
+       5       -0.000000000000     1.738630267953    -1.281937791043
+       6        0.000000000000    -1.738630267953    -1.281937791043
+
+
+  -One-electron contribution to gradient:
+     Atom            X                  Y                   Z
+    ------   -----------------  -----------------  -----------------
+       1        0.000000000000     0.000000000000   -11.713051001194
+       2        0.000000000000     0.000000000000    11.713051001194
+       3       -0.000000000000     4.214406686201    -2.837421942525
+       4        0.000000000000    -4.214406686201    -2.837421942525
+       5        0.000000000000    -4.214406686201     2.837421942525
+       6       -0.000000000000     4.214406686201     2.837421942525
+
+
+  -Lagrangian contribution to gradient:
+     Atom            X                  Y                   Z
+    ------   -----------------  -----------------  -----------------
+       1        0.000000000000     0.000000000000     0.249903647479
+       2        0.000000000000     0.000000000000    -0.249903647479
+       3        0.000000000000    -0.186463086237     0.094287924231
+       4       -0.000000000000     0.186463086237     0.094287924231
+       5       -0.000000000000     0.186463086237    -0.094287924231
+       6        0.000000000000    -0.186463086237    -0.094287924231
+
+
+  -Two-electron contribution to gradient:
+     Atom            X                  Y                   Z
+    ------   -----------------  -----------------  -----------------
+       1        0.000000000000     0.000000000000     6.794687241616
+       2        0.000000000000     0.000000000000    -6.794687241616
+       3        0.000000000000    -2.363990727791     1.507972358928
+       4       -0.000000000000     2.363990727791     1.507972358928
+       5       -0.000000000000     2.363990727791    -1.507972358928
+       6        0.000000000000    -2.363990727791    -1.507972358928
+
+
+  -Total gradient:
+     Atom            X                  Y                   Z
+    ------   -----------------  -----------------  -----------------
+       1        0.000000000000     0.000000000000    -0.087812168179
+       2        0.000000000000     0.000000000000     0.087812168179
+       3        0.000000000000    -0.074677395781     0.046776131677
+       4       -0.000000000000     0.074677395781     0.046776131677
+       5       -0.000000000000     0.074677395781    -0.046776131677
+       6        0.000000000000    -0.074677395781    -0.046776131677
+
+	DF-RODC-12 analytic gradient (ao_basis=none)......................PASSED
+
+*** Psi4 exiting successfully. Buy a developer a beer!

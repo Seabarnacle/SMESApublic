@@ -1,0 +1,174 @@
+jobs:
+# Configure, build, install, and test job
+- job: 'linux_build'
+  displayName: 'Linux Builds'
+  timeoutInMinutes: 120
+  variables:
+    CTEST_OUTPUT_ON_FAILURE: 1
+    MKL_CBWR: AUTO
+  strategy:
+    maxParallel: 8
+    matrix:
+      gcc_11:
+        CXX_COMPILER: 'g++-11'
+        PYTHON_VER: '3.8'
+        C_COMPILER: 'gcc-11'
+        F_COMPILER: 'gfortran'
+        BUILD_TYPE: 'release'
+        APT_INSTALL: 'gfortran gcc-11 g++-11'
+        vmImage: 'ubuntu-22.04'
+        PYTEST_MARKER_EXPR: "quick"
+        ENABLE_EINSUMS: "ON"
+
+      gcc_latest:
+        CXX_COMPILER: 'g++'
+        PYTHON_VER: '3.12'
+        C_COMPILER: 'gcc'
+        F_COMPILER: 'gfortran'
+        BUILD_TYPE: 'release'
+        APT_INSTALL: 'gfortran'
+        vmImage: 'ubuntu-latest'
+        PYTEST_MARKER_EXPR: 'api and not stdsuite and not (smoke or quick or medlong or long)'
+        ENABLE_EINSUMS: "ON"
+
+      clang_latest:
+        CXX_COMPILER: 'clang++'
+        PYTHON_VER: '3.9'
+        C_COMPILER: 'clang'
+        F_COMPILER: 'gfortran'
+        BUILD_TYPE: 'release'
+        APT_INSTALL: 'gfortran clang-6.0'
+        vmImage: 'ubuntu-20.04'
+        PYTEST_MARKER_EXPR: 'cli and not (smoke or quick or medlong or long)'
+        ENABLE_EINSUMS: "OFF"
+
+  pool:
+    vmImage: $(vmImage)
+
+  steps:
+  - bash: |
+      [[ "${APT_REPOSITORY}" ]] && echo "Add Repo ${APT_REPOSITORY}" && sudo add-apt-repository "${APT_REPOSITORY}"
+      sudo apt-get update
+      sudo apt-get install ${APT_INSTALL}
+    displayName: "Apt-Get Packages"
+
+  - bash: |
+      echo "" && echo "Ubuntu"
+      lsb_release -a
+
+      echo "" && echo "Uname:"
+      uname -a
+
+      echo "" && echo "Free:"
+      free -m
+
+      echo "" && echo "df:"
+      df -h
+
+      echo "" && echo "Ulimit:"
+      ulimit -a
+
+      echo "" && echo "Nprocs:"
+      getconf _NPROCESSORS_ONLN
+
+      echo "CXX Ver:"
+      ${CXX_COMPILER} --version
+      ${CXX_COMPILER} -v
+
+      echo "F Ver:"
+      ${F_COMPILER} --version
+
+      echo "C Ver:"
+      ${C_COMPILER} --version
+    displayName: "Setup Information"
+
+  - bash: |
+        echo "##vso[task.prependpath]$CONDA/bin"
+        conda config --set always_yes yes
+        conda config --set solver libmamba
+    displayName: "Add Conda to PATH"
+
+  - bash: |
+      conda install pyyaml -c conda-forge
+      conda/psi4-path-advisor.py \
+        env \
+        --name p4env \
+        --python $PYTHON_VER \
+        --disable compilers addons docs
+      echo "\n<<<  env_p4env.yaml  >>>\n"
+      cat env_p4env.yaml
+      # test some alternative packages
+      if [[ "${PYTHON_VER}" != "3.12" ]]; then
+        echo "  - psi4::gcp" >> env_p4env.yaml
+        echo "  - psi4::dftd3" >> env_p4env.yaml
+      fi
+      sed -i "s;- libint;#- libint;g" env_p4env.yaml
+      sed -i "s;#- psi4::libint;- psi4::libint=2.8.1;g" env_p4env.yaml
+      echo "  - einsums=*=mkl*" >> env_p4env.yaml
+      echo "  - range-v3" >> env_p4env.yaml
+      echo "  - zlib" >> env_p4env.yaml
+      echo "\n<<<  env_p4env.yaml  >>>\n"
+      cat env_p4env.yaml
+      conda env create -n p4env -f env_p4env.yaml
+      source activate p4env
+      conda info
+      conda list
+    displayName: 'Build Environment'
+
+  - bash: |
+      source activate p4env
+      python -V
+      python -c 'import numpy; print(numpy.version.version)'
+      conda/psi4-path-advisor.py \
+        cmake \
+        --objdir build \
+        --insist
+      echo "\n<<<  cache_p4env@build.cmake  >>>\n"
+      cat cache_p4env@build.cmake
+      cmake \
+        -S. \
+        -B build \
+        -C $(Build.SourcesDirectory)/cache_p4env@build.cmake \
+        -D CMAKE_CXX_COMPILER=${CXX_COMPILER} \
+        -D CMAKE_C_COMPILER=${C_COMPILER} \
+        -D CMAKE_Fortran_COMPILER=${F_COMPILER} \
+        -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+        -D ENABLE_PLUGIN_TESTING=ON \
+        -D ENABLE_Einsums="${ENABLE_EINSUMS}" \
+        -D ENABLE_IntegratorXX=ON \
+        -D ENABLE_gauxc=ON \
+        -D FORCE_PEDANTIC=ON \
+        -D CMAKE_INSTALL_PREFIX=$(Agent.BuildDirectory)/Install
+    displayName: 'Configure Build'
+
+  - bash: |
+      cd build
+      source activate p4env
+      ../devtools/scripts/ci_build.sh
+      readelf -d ./stage/lib/psi4/core*.so
+      ldd -v ./stage/lib/psi4/core*.so
+    displayName: 'Build Psi4'
+
+  - bash: |
+      cd build
+      source activate p4env
+      python -V
+      python -c 'import numpy; print(numpy.version.version)'
+      python -c 'import qcelemental as q; print(q.__version__, q.__file__)'
+      ./stage/bin/psi4 ../tests/tu1-h2o-energy/input.dat
+    displayName: 'Spot Test'
+
+  - bash: |
+      cd build
+      source activate p4env
+      python ../devtools/scripts/ci_run_test.py
+      python ../devtools/scripts/ci_print_failing.py
+    displayName: 'CTest Tests'
+
+  - bash: |
+      cd build
+      source activate p4env
+      PYTHONPATH=stage/lib/ pytest -v -rws --durations=15 --durations-min=40 --strict-markers --color yes -n 2 -m "$PYTEST_MARKER_EXPR" stage/lib/psi4/tests/
+    displayName: 'PyTest Tests'
+
+# setuptools v66 (vendors packaging v23) incompatible with arb. tarballs. thinks the branch names are versions

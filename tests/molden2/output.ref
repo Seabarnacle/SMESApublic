@@ -1,0 +1,492 @@
+
+    -----------------------------------------------------------------------
+          Psi4: An Open-Source Ab Initio Electronic Structure Package
+                               Psi4 1.1rc3.dev5 
+
+                         Git: Rev {master} 3fbd859 
+
+
+    R. M. Parrish, L. A. Burns, D. G. A. Smith, A. C. Simmonett,
+    A. E. DePrince III, E. G. Hohenstein, U. Bozkaya, A. Yu. Sokolov,
+    R. Di Remigio, R. M. Richard, J. F. Gonthier, A. M. James,
+    H. R. McAlexander, A. Kumar, M. Saitow, X. Wang, B. P. Pritchard,
+    P. Verma, H. F. Schaefer III, K. Patkowski, R. A. King, E. F. Valeev,
+    F. A. Evangelista, J. M. Turney, T. D. Crawford, and C. D. Sherrill,
+    J. Chem. Theory Comput. in press (2017).
+    (doi: 10.1021/acs.jctc.7b00174)
+
+    -----------------------------------------------------------------------
+
+
+    Psi4 started on: Monday, 15 May 2017 03:37PM
+
+    Process ID:  14623
+    PSIDATADIR: /home/psilocaluser/gits/hrw-direct/objdir4/stage/usr/local/psi4/share/psi4
+    Memory:     500.0 MiB
+    Threads:    1
+    
+  ==> Input File <==
+
+--------------------------------------------------------------------------
+#! Test of the superposition of atomic densities (SAD) guess, using a highly distorted water
+#! geometry with a cc-pVDZ basis set.  This is just a test of the code and the user need only
+#! specify guess=sad to the SCF module's (or global) options in order to use a SAD guess. The
+#! test is first performed in C2v symmetry, and then in C1.
+
+mtol = 2
+molden_cas_ref = """ Occup=  0.0000
+ Occup=  0.0000
+ Occup=  0.0000
+ Occup=  0.0000
+ Occup=  0.0000
+ Occup=  0.0000
+ Occup=  0.0276
+ Occup=  0.0320
+ Occup=  1.9690
+ Occup=  1.9734
+ Occup=  1.9986
+ Occup=  1.9994
+ Occup=  2.0000
+""".splitlines()
+
+molecule h2o {
+    O
+    H 1 1.0
+    H 1 1.0 2 90
+}
+
+set {
+    basis     6-31G
+    frozen_docc     [1, 0, 0, 0]
+    active          [3, 0, 1, 2]
+}
+scf_e, cas_wfn = energy('casscf', return_wfn=True)
+molden(cas_wfn, 'cas_orbitals.molden', density_a=cas_wfn.get_opdm(0, 0, "A", True))
+
+molden_file = open('cas_orbitals.molden', 'r')
+molden_occup = [x for x in molden_file.read().splitlines() if 'Occup' in x][-13:]
+molden_file.close()
+
+for num, comp, ref in zip(range(13)[::-1], molden_cas_ref, molden_occup):
+    c = round(float(comp.split('=')[-1]), mtol)
+    r = round(float(ref.split('=')[-1]), mtol)
+   
+    compare_values(r, c, mtol, ("Comparison of occupation number %d" % (num+1)))  #TEST
+
+--------------------------------------------------------------------------
+
+*** tstart() called on psinet
+*** at Mon May 15 15:37:17 2017
+
+   => Loading Basis Set <=
+
+    Name: 6-31G
+    Role: ORBITAL
+    Keyword: BASIS
+    atoms 1   entry O          line   112 file /home/psilocaluser/gits/hrw-direct/objdir4/stage/usr/local/psi4/share/psi4/basis/6-31g.gbs 
+    atoms 2-3 entry H          line    21 file /home/psilocaluser/gits/hrw-direct/objdir4/stage/usr/local/psi4/share/psi4/basis/6-31g.gbs 
+
+    There are an even number of electrons - assuming singlet.
+    Specify the multiplicity in the molecule input block.
+
+
+         ---------------------------------------------------------
+                                   SCF
+            by Justin Turney, Rob Parrish, and Andy Simmonett
+                              RHF Reference
+                        1 Threads,    500 MiB Core
+         ---------------------------------------------------------
+
+  ==> Geometry <==
+
+    Molecular point group: c2v
+    Full point group: C2v
+
+    Geometry (in Angstrom), charge = 0, multiplicity = 1:
+
+       Center              X                  Y                   Z               Mass       
+    ------------   -----------------  -----------------  -----------------  -----------------
+           O          0.000000000000     0.000000000000    -0.079135765807    15.994914619560
+           H          0.000000000000    -0.707106781187     0.627971015380     1.007825032070
+           H          0.000000000000     0.707106781187     0.627971015380     1.007825032070
+
+  Running in c2v symmetry.
+
+  Rotational constants: A =     18.83462  B =     16.72674  C =      8.85910 [cm^-1]
+  Rotational constants: A = 564647.56322  B = 501455.10273  C = 265589.24470 [MHz]
+  Nuclear repulsion =    8.841020130083360
+
+  Charge       = 0
+  Multiplicity = 1
+  Electrons    = 10
+  Nalpha       = 5
+  Nbeta        = 5
+
+  ==> Algorithm <==
+
+  SCF Algorithm Type is DF.
+  DIIS enabled.
+  MOM disabled.
+  Fractional occupation disabled.
+  Guess Type is SAD.
+  Energy threshold   = 1.00e-08
+  Density threshold  = 1.00e-08
+  Integral threshold = 0.00e+00
+
+  ==> Primary Basis <==
+
+  Basis Set: 6-31G
+    Blend: 6-31G
+    Number of shells: 9
+    Number of basis function: 13
+    Number of Cartesian functions: 13
+    Spherical Harmonics?: false
+    Max angular momentum: 1
+
+   => Loading Basis Set <=
+
+    Name: (6-31G AUX)
+    Role: JKFIT
+    Keyword: DF_BASIS_SCF
+    atoms 1   entry O          line   220 file /home/psilocaluser/gits/hrw-direct/objdir4/stage/usr/local/psi4/share/psi4/basis/cc-pvdz-jkfit.gbs 
+    atoms 2-3 entry H          line    50 file /home/psilocaluser/gits/hrw-direct/objdir4/stage/usr/local/psi4/share/psi4/basis/cc-pvdz-jkfit.gbs 
+
+  ==> Pre-Iterations <==
+
+   -------------------------------------------------------
+    Irrep   Nso     Nmo     Nalpha   Nbeta   Ndocc  Nsocc
+   -------------------------------------------------------
+     A1         7       7       0       0       0       0
+     A2         0       0       0       0       0       0
+     B1         2       2       0       0       0       0
+     B2         4       4       0       0       0       0
+   -------------------------------------------------------
+    Total      13      13       5       5       5       0
+   -------------------------------------------------------
+
+  ==> Integral Setup <==
+
+  ==> DFJK: Density-Fitted J/K Matrices <==
+
+    J tasked:                  Yes
+    K tasked:                  Yes
+    wK tasked:                  No
+    OpenMP threads:              1
+    Integrals threads:           1
+    Memory (MB):               375
+    Algorithm:                Core
+    Integral Cache:           NONE
+    Schwarz Cutoff:          1E-12
+    Fitting Condition:       1E-12
+
+   => Auxiliary Basis Set <=
+
+  Basis Set: (6-31G AUX)
+    Blend: CC-PVDZ-JKFIT
+    Number of shells: 42
+    Number of basis function: 131
+    Number of Cartesian functions: 131
+    Spherical Harmonics?: false
+    Max angular momentum: 3
+
+  Minimum eigenvalue in the overlap matrix is 7.0941751674E-02.
+  Using Symmetric Orthogonalization.
+
+  SCF Guess: Superposition of Atomic Densities via on-the-fly atomic UHF.
+
+  ==> Iterations <==
+
+                           Total Energy        Delta E     RMS |[F,P]|
+
+   @DF-RHF iter   0:   -75.88314839259512   -7.58831e+01   1.89166e-01 
+   @DF-RHF iter   1:   -75.92216339956367   -3.90150e-02   3.52025e-02 
+   @DF-RHF iter   2:   -75.95845784148926   -3.62944e-02   2.02722e-02 DIIS
+   @DF-RHF iter   3:   -75.96888474965920   -1.04269e-02   3.05775e-03 DIIS
+   @DF-RHF iter   4:   -75.96960793260692   -7.23183e-04   8.34328e-04 DIIS
+   @DF-RHF iter   5:   -75.96968334280399   -7.54102e-05   1.32213e-04 DIIS
+   @DF-RHF iter   6:   -75.96968511984714   -1.77704e-06   3.11550e-05 DIIS
+   @DF-RHF iter   7:   -75.96968520676342   -8.69163e-08   2.44055e-06 DIIS
+   @DF-RHF iter   8:   -75.96968520718733   -4.23910e-10   2.26858e-07 DIIS
+   @DF-RHF iter   9:   -75.96968520718914   -1.81899e-12   2.85422e-08 DIIS
+   @DF-RHF iter  10:   -75.96968520718923   -8.52651e-14   1.74299e-09 DIIS
+
+  ==> Post-Iterations <==
+
+    Orbital Energies (a.u.)
+    -----------------------
+
+    Doubly Occupied:                                                      
+
+       1A1   -20.579243     2A1    -1.350632     1B2    -0.661223  
+       3A1    -0.582608     1B1    -0.506533  
+
+    Virtual:                                                              
+
+       4A1     0.188777     2B2     0.283098     3B2     0.982667  
+       2B1     1.158822     5A1     1.162461     6A1     1.248301  
+       4B2     1.353333     7A1     1.745029  
+
+    Final Occupation by Irrep:
+             A1    A2    B1    B2 
+    DOCC [     3,    0,    1,    1 ]
+
+  Energy converged.
+
+  @DF-RHF Final Energy:   -75.96968520718923
+
+   => Energetics <=
+
+    Nuclear Repulsion Energy =              8.8410201300833595
+    One-Electron Energy =                -122.2609306735654968
+    Two-Electron Energy =                  37.4502253362929096
+    DFT Exchange-Correlation Energy =       0.0000000000000000
+    Empirical Dispersion Energy =           0.0000000000000000
+    PCM Polarization Energy =               0.0000000000000000
+    EFP Energy =                            0.0000000000000000
+    Total Energy =                        -75.9696852071892295
+
+
+
+Properties will be evaluated at   0.000000,   0.000000,   0.000000 Bohr
+
+Properties computed using the SCF density matrix
+
+  Nuclear Dipole Moment: (a.u.)
+     X:     0.0000      Y:     0.0000      Z:     1.1770
+
+  Electronic Dipole Moment: (a.u.)
+     X:     0.0000      Y:     0.0000      Z:    -0.0494
+
+  Dipole Moment: (a.u.)
+     X:     0.0000      Y:     0.0000      Z:     1.1276     Total:     1.1276
+
+  Dipole Moment: (Debye)
+     X:     0.0000      Y:     0.0000      Z:     2.8661     Total:     2.8661
+
+
+*** tstop() called on psinet at Mon May 15 15:37:17 2017
+Module time:
+	user time   =       0.44 seconds =       0.01 minutes
+	system time =       0.02 seconds =       0.00 minutes
+	total time  =          0 seconds =       0.00 minutes
+Total time:
+	user time   =       0.44 seconds =       0.01 minutes
+	system time =       0.02 seconds =       0.00 minutes
+	total time  =          0 seconds =       0.00 minutes
+ MINTS: Wrapper to libmints.
+   by Justin Turney
+
+   Calculation information:
+      Number of threads:                 1
+      Number of atoms:                   3
+      Number of AO shells:               9
+      Number of SO shells:               7
+      Number of primitives:             22
+      Number of atomic orbitals:        13
+      Number of basis functions:        13
+
+      Number of irreps:                  4
+      Integral cutoff                 1.00e-12
+      Number of functions per irrep: [   7    0    2    4 ]
+
+ OEINTS: Overlap, kinetic, potential, dipole, and quadrupole integrals
+         stored in file 35.
+
+      Computing two-electron integrals...done
+      Computed 1270 non-zero two-electron integrals.
+        Stored in file 33.
+
+ MINTS: Wrapper to libmints.
+   by Justin Turney
+
+   Calculation information:
+      Number of threads:                 1
+      Number of atoms:                   3
+      Number of AO shells:               9
+      Number of SO shells:               7
+      Number of primitives:             22
+      Number of atomic orbitals:        13
+      Number of basis functions:        13
+
+      Number of irreps:                  4
+      Integral cutoff                 0.00e+00
+      Number of functions per irrep: [   7    0    2    4 ]
+
+ OEINTS: Overlap, kinetic, potential, dipole, and quadrupole integrals
+         stored in file 35.
+
+      Computing two-electron integrals...done
+      Computed 1270 non-zero two-electron integrals.
+        Stored in file 33.
+
+
+         ---------------------------------------------------------
+                Multi-Configurational Self-Consistent Field
+                            (a 'D E T C I' module)
+
+                 Daniel G. A. Smith, C. David Sherrill, and
+                              Matt L. Leininger
+         ---------------------------------------------------------
+
+
+   ==> Parameters <==
+
+    EX LEVEL       =        8      H0 BLOCKSIZE  =     1000
+    VAL EX LEVEL   =        0      H0 GUESS SIZE =     1000
+    H0COUPLINGSIZE =        0      H0 COUPLING   =       NO
+    MAXITER        =       12      NUM PRINT     =       20
+    NUM ROOTS      =        1      ICORE         =        1
+    PRINT LVL      =        1      FCI           =      YES
+    R CONV         = 1.00e-07      MIXED         =      YES
+    E CONV         = 1.00e-06      MIXED4        =      YES
+    R4S            =       NO      REPL OTF      =       NO
+    DIAG METHOD    =      SEM      FOLLOW ROOT   =        0
+    PRECONDITIONER = DAVIDSON      UPDATE        = DAVIDSON
+    S              =   0.0000      Ms0           =      YES
+    GUESS VECTOR   =  H0BLOCK      OPENTYPE      =     NONE
+    COLLAPSE SIZE  =        1      HD AVG        = EVANGELISTI
+    MAX NUM VECS   =       13      REF SYM       =     AUTO
+    IOPEN        =       NO
+
+    EX ALLOW       =  1  1  1  1  1  1  1  1 
+    STATE AVERAGE  =  0(1.00) 
+
+   ==> CI Orbital and Space information <==
+
+   ------------------------------------------------------
+               Space    Total    A1    A2    B1    B2
+   ------------------------------------------------------
+                 Nso       13     7     0     2     4
+                 Nmo       13     7     0     2     4
+               Ndocc        5     3     0     1     1
+               Nsocc        0     0     0     0     0
+   ------------------------------------------------------
+                        MCSCF Spaces
+   ------------------------------------------------------
+         Frozen DOCC        1     1     0     0     0
+     Restricted DOCC        0     0     0     0     0
+              Active        6     3     0     1     2
+     Restricted UOCC        6     3     0     1     2
+         Frozen UOCC        0     0     0     0     0
+   ------------------------------------------------------
+
+   ==> Setting up CI strings <==
+
+    There are 15 alpha and 15 beta strings
+    The CI space requires 65 (6.50E+01) determinants and 4 blocks
+
+   ==> Setting up MCSCF integrals <==
+
+  Using in-core PK algorithm.
+   Calculation information:
+      Number of atoms:                   3
+      Number of AO shells:               9
+      Number of primitives:             22
+      Number of atomic orbitals:        13
+      Number of basis functions:        13
+
+      Integral cutoff                 1.00e-12
+      Number of threads:                 1
+
+  Performing in-core PK
+  Using 8372 doubles for integral storage.
+  We computed 1035 shell quartets total.
+  Whereas there are 1035 unique shell quartets.
+  ==> DiskJK: Disk-Based J/K Matrices <==
+
+    J tasked:                  Yes
+    K tasked:                  Yes
+    wK tasked:                  No
+    Memory (MB):              3200
+    Schwarz Cutoff:          1E-12
+
+    OpenMP threads:              1
+
+   ==> Starting MCSCF iterations <==
+
+        Iter         Total Energy       Delta E   Orb RMS    CI RMS  NCI NORB
+   @MCSCF  1:    -75.985819785958   -1.6135e-02  1.54e-02  1.68e-13    1    1  Initial CI
+      Warning! Maxstep = 0.61, scaling to 0.50
+   @MCSCF  2:    -76.024465397136   -3.8646e-02  1.63e-02  3.02e-06    6    1  TS
+   @MCSCF  3:    -76.031200432478   -6.7350e-03  5.72e-03  8.95e-06    5    1  TS
+   @MCSCF  4:    -76.031904411474   -7.0398e-04  2.25e-03  2.88e-06    5    1  TS, DIIS
+   @MCSCF  5:    -76.031993096629   -8.8685e-05  1.05e-03  1.11e-06    5    1  TS, DIIS
+   @MCSCF  6:    -76.032006745997   -1.3649e-05  4.08e-04  1.37e-07    6    1  TS, DIIS
+   @MCSCF  7:    -76.032009411310   -2.6653e-06  1.49e-04  6.54e-08    6    1  TS, DIIS
+   @MCSCF  8:    -76.032009877819   -4.6651e-07  5.03e-05  2.14e-08    6    1  TS, DIIS
+   @MCSCF  9:    -76.032009923058   -4.5239e-08  4.07e-06  3.74e-08    5    1  TS, DIIS
+
+          @MCSCF has converged!
+
+   @MCSCF Final Energy:  -76.032009923057672
+
+   ==> Energetics <==
+
+    SCF energy =          -75.969685207189229
+    Total MCSCF energy =  -76.032009923057672
+
+   ==> MCSCF root 0 information <==
+
+    MCSCF Root 0 energy =   -76.032009923057672
+
+   Active Space Natural occupation numbers:
+
+        B1   1.999370        A1   1.998621        A1   1.973391
+        B2   1.969031        B2   0.031956        A1   0.027632
+
+   The 20 most important determinants:
+
+    *   1    0.984938  (    3,    3)  2A1X 3A1X 1B1X 1B2X 
+    *   2   -0.088745  (    6,    6)  2A1X 3A1X 1B1X 2B2X 
+    *   3    0.055321  (    4,    6)  2A1X 3A1B 4A1A 1B1X 1B2A 2B2B 
+    *   4    0.055321  (    6,    4)  2A1X 3A1A 4A1B 1B1X 1B2B 2B2A 
+    *   5   -0.053834  (    4,    4)  2A1X 4A1X 1B1X 1B2X 
+    *   6   -0.034725  (   10,   10)  2A1X 1B1X 1B2X 2B2X 
+    *   7   -0.033096  (    9,    9)  2A1X 3A1X 4A1X 1B1X 
+    *   8   -0.032507  (    5,    5)  3A1X 4A1X 1B1X 1B2X 
+    *   9    0.032280  (    5,    6)  2A1B 3A1X 4A1A 1B1X 1B2A 2B2B 
+    *  10    0.032280  (    6,    5)  2A1A 3A1X 4A1B 1B1X 1B2B 2B2A 
+    *  11   -0.031664  (    4,    5)  2A1A 3A1B 4A1X 1B1X 1B2X 
+    *  12   -0.031664  (    5,    4)  2A1B 3A1A 4A1X 1B1X 1B2X 
+    *  13   -0.030280  (    9,   10)  2A1X 3A1A 4A1A 1B1X 1B2B 2B2B 
+    *  14   -0.030280  (   10,    9)  2A1X 3A1B 4A1B 1B1X 1B2A 2B2A 
+    *  15    0.025042  (    3,    7)  2A1X 3A1A 4A1B 1B1X 1B2A 2B2B 
+    *  16    0.025042  (    7,    3)  2A1X 3A1B 4A1A 1B1X 1B2B 2B2A 
+    *  17   -0.021068  (    9,   11)  2A1A 3A1X 4A1A 1B1X 1B2B 2B2B 
+    *  18   -0.021068  (   11,    9)  2A1B 3A1X 4A1B 1B1X 1B2A 2B2A 
+    *  19   -0.017208  (   11,   11)  3A1X 1B1X 1B2X 2B2X 
+    *  20   -0.015319  (   13,   13)  2A1X 3A1X 4A1X 1B2X 
+
+
+
+Properties will be evaluated at   0.000000,   0.000000,   0.000000 Bohr
+
+Properties computed using the CASSCF density matrix
+
+  Nuclear Dipole Moment: (a.u.)
+     X:     0.0000      Y:     0.0000      Z:     1.1770
+
+  Electronic Dipole Moment: (a.u.)
+     X:     0.0000      Y:     0.0000      Z:    -0.1415
+
+  Dipole Moment: (a.u.)
+     X:     0.0000      Y:     0.0000      Z:     1.0355     Total:     1.0355
+
+  Dipole Moment: (Debye)
+     X:     0.0000      Y:     0.0000      Z:     2.6319     Total:     2.6319
+
+	Comparison of occupation number 13................................PASSED
+	Comparison of occupation number 12................................PASSED
+	Comparison of occupation number 11................................PASSED
+	Comparison of occupation number 10................................PASSED
+	Comparison of occupation number 9.................................PASSED
+	Comparison of occupation number 8.................................PASSED
+	Comparison of occupation number 7.................................PASSED
+	Comparison of occupation number 6.................................PASSED
+	Comparison of occupation number 5.................................PASSED
+	Comparison of occupation number 4.................................PASSED
+	Comparison of occupation number 3.................................PASSED
+	Comparison of occupation number 2.................................PASSED
+	Comparison of occupation number 1.................................PASSED
+
+*** Psi4 exiting successfully. Buy a developer a beer!

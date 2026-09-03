@@ -1,0 +1,8 @@
+BASIS_SET = "LANL2DZ"
+REFERENCE = "UHF"
+GUESS = "SAD"
+Mn2_stretched = psi4.geometry("""
+0 1
+Mn 0.0 0.0 -1.60
+Mn 0.0 0.0  1.55
+""")
